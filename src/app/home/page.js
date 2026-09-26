@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, PackagePlus, Wand2, Rotate3d, CalendarDays, BarChart3, Brain, ArrowRight } from "lucide-react";
-import { Screen, BottomNav } from "@/components/Screen";
+import { useRouter } from "next/navigation";
+import { Bell, PackagePlus, Wand2, Rotate3d, CalendarDays, BarChart3, Brain, ArrowRight, Clock } from "lucide-react";
+import { Screen, TopBar } from "@/components/Screen";
 import GarmentArt from "@/components/GarmentArt";
-import { useStore } from "@/lib/store";
+import { useStore, toISO } from "@/lib/store";
 
 const ACTIONS = [
   { href: "/products/new", icon: PackagePlus, label: "Add Product" },
@@ -14,6 +15,7 @@ const ACTIONS = [
   { href: "/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/brand", icon: Brain, label: "Brand Brain" },
 ];
+const SCENES = ["room", "studio", "outdoor", "luxury"];
 
 function greeting() {
   const h = new Date().getHours();
@@ -21,97 +23,132 @@ function greeting() {
 }
 
 export default function Home() {
-  const { business, products } = useStore();
-  const review = products.filter((p) => p.status === "review").length + 2;
+  const router = useRouter();
+  const { business, products, posts, setCurrent } = useStore();
+  const review = products.filter((p) => p.status === "review");
+  const today = toISO(new Date());
+  const upcoming = posts.filter((p) => p.date >= today && p.status !== "published").sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3);
+
   const stats = [
     { n: products.length, label: "Products" },
-    { n: 3, label: "Content" },
-    { n: 2, label: "Pending" },
-    { n: products.filter((p) => p.status === "posted").length, label: "Published" },
+    { n: posts.length, label: "Content" },
+    { n: review.length, label: "Pending" },
+    { n: posts.filter((p) => p.status === "published").length, label: "Published" },
   ];
+  const max = Math.max(1, ...stats.map((s) => s.n));
+
+  const openReview = () => {
+    if (review[0]) setCurrent(review[0].id);
+    router.push("/create/review");
+  };
 
   return (
     <Screen>
-      <div className="topbar" style={{ paddingLeft: 20 }}>
-        <div className="grow">
-          <p className="small muted" suppressHydrationWarning>{greeting()},</p>
-          <h1 className="h-md">{business.name}</h1>
-        </div>
-        <Link href="/create/review" className="icon-btn" aria-label="Notifications">
-          <Bell size={19} /><span className="dot" />
-        </Link>
-      </div>
+      <TopBar
+        title={business.name}
+        subtitle={<span suppressHydrationWarning>{greeting()} 👋</span>}
+        right={
+          <button onClick={openReview} className="icon-btn" aria-label={`${review.length} items need review`}>
+            <Bell size={19} />{review.length > 0 && <span className="dot" />}
+          </button>
+        }
+      />
 
       <div className="body">
-        {/* Hero: review queue */}
-        <div
-          className="card"
-          style={{ overflow: "hidden", position: "relative", border: 0, background: "linear-gradient(135deg,#fde9f1,#ece8ff)" }}
-        >
-          <div className="row" style={{ alignItems: "stretch" }}>
-            <div className="grow" style={{ padding: "18px 12px 14px 18px" }}>
-              <span className="badge violet">AI · New</span>
-              <p className="h-md mt-8" style={{ fontSize: 17 }}>{review} products are ready for your review</p>
-              <p className="tiny muted mt-4">Photos, captions & a try-on look generated overnight.</p>
-            </div>
-            <div style={{ width: 104, flex: "none", position: "relative" }}>
-              <div style={{ position: "absolute", inset: "14px -22px 6px 10px", transform: "rotate(6deg)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--shadow-md)" }}>
-                <GarmentArt scene="luxury" color="#e2667e" />
+        <div className="split-r">
+          <div className="stack gap-16">
+            {/* Hero: review queue */}
+            <div className="card" style={{ overflow: "hidden", border: 0, background: "linear-gradient(135deg,#fde9f1,#ece8ff)" }}>
+              <div className="row" style={{ alignItems: "stretch" }}>
+                <div className="grow" style={{ padding: "22px 12px 16px 22px" }}>
+                  <span className="badge violet">AI · New</span>
+                  <p className="h-md mt-8" style={{ fontSize: 19 }}>
+                    {review.length ? `${review.length} product${review.length > 1 ? "s are" : " is"} ready for your review` : "You're all caught up"}
+                  </p>
+                  <p className="small muted mt-4">Photos, captions & a try-on look, generated and waiting for your approval.</p>
+                  <button onClick={openReview} className="btn primary sm mt-16" disabled={!review.length}>Review Now <ArrowRight size={16} /></button>
+                </div>
+                <div style={{ width: "38%", maxWidth: 220, flex: "none", position: "relative", minHeight: 180 }}>
+                  <div style={{ position: "absolute", inset: "16px -24px 16px 14px", transform: "rotate(5deg)", borderRadius: 16, overflow: "hidden", boxShadow: "var(--shadow-md)" }}>
+                    <GarmentArt scene="luxury" color={review[0]?.color || "#e2667e"} variant={review[0]?.variant || "anarkali"} />
+                  </div>
+                  <div style={{ position: "absolute", left: -6, bottom: 10, width: "42%", aspectRatio: "4/5", transform: "rotate(-8deg)", borderRadius: 12, overflow: "hidden", boxShadow: "var(--shadow-md)", border: "2px solid #fff" }}>
+                    <GarmentArt variant={review[1]?.variant || "saree"} color={review[1]?.color || "#d44a6b"} scene="studio" />
+                  </div>
+                </div>
               </div>
-              <div style={{ position: "absolute", left: -8, bottom: 4, width: 54, height: 68, transform: "rotate(-8deg)", borderRadius: 12, overflow: "hidden", boxShadow: "var(--shadow-md)", border: "2px solid #fff" }}>
-                <GarmentArt variant="saree" scene="studio" color="#d44a6b" />
+            </div>
+
+            <div>
+              <div className="section-title" style={{ marginTop: 6 }}><h3>Quick Actions</h3></div>
+              <div className="g-actions">
+                {ACTIONS.map(({ href, icon: Icon, label }) => (
+                  <Link key={label} href={href} className="card center" style={{ padding: "16px 6px" }}>
+                    <span className="tile-icon" style={{ margin: "0 auto" }}><Icon size={19} /></span>
+                    <p className="tiny mt-8" style={{ fontWeight: 600 }}>{label}</p>
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
-          <div style={{ padding: "0 18px 18px" }}>
-            <Link href="/create/review" className="btn primary block sm">Review Now <ArrowRight size={16} /></Link>
+
+          <div className="stack gap-16">
+            <div className="card pad">
+              <div className="row between"><h3 className="h-sm">Today&apos;s Progress</h3><Link href="/analytics" className="tiny link">Insights</Link></div>
+              <div className="g-stats mt-12">
+                {stats.map((s) => (
+                  <div key={s.label} className="center">
+                    <div style={{ width: 46, height: 46, margin: "0 auto", borderRadius: "50%", display: "grid", placeItems: "center", background: `conic-gradient(var(--violet) ${(s.n / max) * 100}%, var(--line) 0)` }}>
+                      <span style={{ width: 36, height: 36, borderRadius: "50%", background: "#fff", display: "grid", placeItems: "center", fontFamily: "var(--font-display)", fontWeight: 700 }}>{s.n}</span>
+                    </div>
+                    <p className="tiny muted mt-8">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="card pad">
+              <div className="row between"><h3 className="h-sm">Up next</h3><Link href="/calendar" className="tiny link">Calendar</Link></div>
+              <div className="stack gap-10 mt-12">
+                {upcoming.length === 0 && <p className="small muted">Nothing scheduled. <Link href="/create" className="link">Create content</Link></p>}
+                {upcoming.map((post) => {
+                  const p = products.find((x) => x.id === post.productId);
+                  if (!p) return null;
+                  return (
+                    <div key={post.id} className="row gap-10">
+                      <div className="frame" style={{ width: 40, height: 48, borderRadius: 10, flex: "none" }}><GarmentArt variant={p.variant} color={p.color} accent={p.accent} scene="studio" /></div>
+                      <div className="grow" style={{ minWidth: 0 }}>
+                        <p className="small" style={{ fontWeight: 700 }}>{p.name}</p>
+                        <p className="tiny muted row gap-4"><Clock size={11} /> {new Date(post.date + "T00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" })} · {post.time}</p>
+                      </div>
+                      <span className={`badge ${post.status === "draft" ? "amber" : "violet"}`} style={{ textTransform: "capitalize" }}>{post.status}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="section-title"><h3>Today&apos;s Progress</h3><Link href="/analytics">Insights</Link></div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
-          {stats.map((s, i) => (
-            <div key={s.label} className="card center" style={{ padding: "14px 4px" }}>
-              <div
-                style={{
-                  width: 38, height: 38, margin: "0 auto", borderRadius: "50%", display: "grid", placeItems: "center",
-                  fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16,
-                  background: `conic-gradient(var(--violet) ${[70, 55, 30, 85][i]}%, var(--line) 0)`,
-                }}
-              >
-                <span style={{ width: 30, height: 30, borderRadius: "50%", background: "#fff", display: "grid", placeItems: "center" }}>{s.n}</span>
-              </div>
-              <p className="tiny muted mt-8">{s.label}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="section-title"><h3>Quick Actions</h3></div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
-          {ACTIONS.map(({ href, icon: Icon, label }) => (
-            <Link key={label} href={href} className="card center" style={{ padding: "14px 6px" }}>
-              <span className="tile-icon" style={{ margin: "0 auto" }}><Icon size={19} /></span>
-              <p className="tiny mt-8" style={{ fontWeight: 600 }}>{label}</p>
-            </Link>
-          ))}
-        </div>
-
-        <div className="section-title"><h3>Recent content</h3><Link href="/products">See all</Link></div>
-        <div className="chips scroll" style={{ gap: 10 }}>
-          {products.slice(0, 5).map((p, i) => (
-            <Link key={p.id} href="/create/review" style={{ flex: "none", width: 120 }}>
-              <div className="frame" style={{ height: 150, borderRadius: 16 }}>
-                <GarmentArt variant={p.variant} color={p.color} accent={p.accent} scene={["room", "studio", "outdoor", "luxury"][i % 4]} />
+        <div className="section-title"><h3>Recent products</h3><Link href="/products">See all</Link></div>
+        <div className="g-recent">
+          {products.slice(0, 6).map((p, i) => (
+            <button key={p.id} onClick={() => { setCurrent(p.id); router.push("/create/review"); }} style={{ textAlign: "left" }}>
+              <div className="frame" style={{ aspectRatio: "4/5", borderRadius: 16 }}>
+                <GarmentArt variant={p.variant} color={p.color} accent={p.accent} scene={SCENES[i % 4]} />
                 <span className={`badge ${p.status === "posted" ? "green" : p.status === "review" ? "amber" : "gray"}`} style={{ position: "absolute", left: 8, bottom: 8 }}>
                   {p.status === "posted" ? "Posted" : p.status === "review" ? "Review" : "Draft"}
                 </span>
               </div>
-              <p className="tiny mt-4" style={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</p>
-            </Link>
+              <p className="small mt-8" style={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</p>
+            </button>
           ))}
         </div>
       </div>
-      <BottomNav />
+      <style>{`
+        .g-recent { display:grid; gap:12px; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+        @media (max-width: 719px) { .g-recent { grid-template-columns: repeat(6, 128px); overflow-x:auto; margin:0 -20px; padding:0 20px 4px; scrollbar-width:none; } }
+      `}</style>
     </Screen>
   );
 }

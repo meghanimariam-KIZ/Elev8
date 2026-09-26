@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, Plus, Check, Brain } from "lucide-react";
+import { Upload, Plus, Check, Brain, CheckCircle2 } from "lucide-react";
 import { useStore } from "@/lib/store";
 
 const TONES = ["Elegant", "Festive", "Traditional", "Modern", "Playful", "Luxurious", "Minimal"];
@@ -14,6 +14,7 @@ export default function BrandBrainForm({ cta = "Save & Continue", next = "/home"
   const { brand, business, update } = useStore();
   const [form, setForm] = useState(brand);
   const [logo, setLogo] = useState(null);
+  const [saved, setSaved] = useState(false);
   const fileRef = useRef(null);
 
   const toggle = (key, v) =>
@@ -107,8 +108,13 @@ export default function BrandBrainForm({ cta = "Save & Continue", next = "/home"
         </div>
       </div>
       <div className="footer">
-        <button className="btn primary block" onClick={() => { update("brand", form); router.push(next); }}>{cta}</button>
+        <button className="btn primary block" onClick={() => {
+          update("brand", form);
+          if (next) router.push(next);
+          else { setSaved(true); setTimeout(() => setSaved(false), 1800); }
+        }}>{cta}</button>
       </div>
+      {saved && <div className="toast"><CheckCircle2 size={18} color="#4ade80" /> Brand Brain saved</div>}
     </>
   );
 }

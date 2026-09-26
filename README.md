@@ -1,7 +1,7 @@
 # ELEV8 — Frontend
 
 AI-powered retail transformation: *one product → multiple experiences.*
-This repo holds the **frontend UI only** (Next.js App Router, plain JavaScript). There is no backend yet; screens run on mock data and simulated AI steps.
+This repo holds the **frontend** (Next.js App Router, plain JavaScript). It's a responsive web app that works on desktop and phone. There is no backend yet: data lives in the browser (localStorage) and the AI steps are simulated.
 
 ## Run
 
@@ -21,7 +21,9 @@ npm run build:webpack && npm start
 
 To get the faster default working again, reinstall clean: delete `node_modules`, run `npm cache clean --force`, then `npm install`. Make sure your Node.js is 64-bit and version 20.9 or newer.
 
-On desktop the app renders inside a phone frame with a screen navigator on the left. Below 900px wide it goes full-screen like a native app.
+**Layout:** on desktop (≥1024px) you get a sidebar and multi-column pages. On phones, pages go full width with a bottom navigation bar. Sign-up and onboarding use a split screen on desktop.
+
+**What works:** adding products (photo upload or drag-and-drop), editing the detected attributes, reviewing and editing captions, approving, and scheduling or publishing posts (they show up on the calendar, home and analytics). You can also delete products, search, filter and sort them, and edit Brand Brain. Everything persists across reloads. Use *Profile → Reset demo data* to start over.
 
 ## Screens
 
@@ -38,11 +40,11 @@ On desktop the app renders inside a phone frame with a screen navigator on the l
 ```
 src/
   app/            one folder per route (page.js), globals.css holds design tokens
-  components/     Screen/TopBar/BottomNav shell, GarmentArt, Logo, Steps, Charts, calendar…
+  components/     AppShell (sidebar + bottom nav), AuthLayout, Screen/TopBar, GarmentArt, Charts, calendar…
   lib/
-    store.js      React context with mock business/brand/products (persisted to localStorage)
+    store.js      React context: business, brand, products, posts + actions (persisted to localStorage)
     hooks.js      useSequence / useCountUp for the simulated AI progress screens
-    screens.js    screen list used by the desktop navigator
+    posts.js      calendar helpers
 ```
 
 ## Notes for wiring up the backend

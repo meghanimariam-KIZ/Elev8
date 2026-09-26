@@ -12,7 +12,7 @@ export default function Regenerating() {
   const R = 54, C = 2 * Math.PI * R;
 
   return (
-    <Screen>
+    <Screen width="narrow">
       <TopBar title="Creating new version…" back="/create/interpretation" />
       <div className="body">
         <div className="mt-12"><Steps items={ITEMS} current={step} /></div>

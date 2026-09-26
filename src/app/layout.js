@@ -1,6 +1,6 @@
 import { Plus_Jakarta_Sans, Sora } from "next/font/google";
 import "./globals.css";
-import Navigator from "@/components/Navigator";
+import AppShell from "@/components/AppShell";
 import { StoreProvider } from "@/lib/store";
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
@@ -23,12 +23,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${jakarta.variable} ${sora.variable}`}>
       <body>
         <StoreProvider>
-          <div className="stage">
-            <Navigator />
-            <main className="stage-main">
-              <div className="phone">{children}</div>
-            </main>
-          </div>
+          <AppShell>{children}</AppShell>
         </StoreProvider>
       </body>
     </html>

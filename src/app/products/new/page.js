@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Image as ImageIcon, ChevronDown, Sparkles } from "lucide-react";
+import { Camera, Image as ImageIcon, ChevronDown, Sparkles, X } from "lucide-react";
 import { Screen, TopBar } from "@/components/Screen";
 import GarmentArt from "@/components/GarmentArt";
 import { useStore } from "@/lib/store";
@@ -14,66 +14,97 @@ export default function AddProduct() {
   const { draft, update } = useStore();
   const camRef = useRef(null);
   const galRef = useRef(null);
+  const [drag, setDrag] = useState(false);
+  const [touched, setTouched] = useState(false);
 
-  const onFile = (e) => {
-    const f = e.target.files?.[0];
-    if (f) update("draft", { photo: URL.createObjectURL(f) });
-  };
+  const setFile = (f) => f && f.type.startsWith("image/") && update("draft", { photo: URL.createObjectURL(f) });
   const set = (k) => (e) => update("draft", { [k]: e.target.value });
+  const valid = draft.name.trim() && Number(draft.price) > 0;
+
+  const next = (e) => {
+    e.preventDefault();
+    setTouched(true);
+    if (valid) router.push("/products/new/analyzing");
+  };
 
   return (
-    <Screen>
-      <TopBar title="Add your product" back="/home" />
-      <div className="body">
-        <p className="sub" style={{ marginTop: -6 }}>Upload once. <b>ELEV8</b> handles the rest.</p>
-
-        <div className="card row mt-16" style={{ padding: 6 }}>
-          {[
-            { ref: camRef, icon: Camera, label: "Camera", capture: "environment" },
-            { ref: galRef, icon: ImageIcon, label: "Gallery" },
-          ].map(({ ref, icon: Icon, label, capture }, i) => (
-            <button
-              key={label} type="button" onClick={() => ref.current?.click()}
-              className="grow stack gap-8"
-              style={{ alignItems: "center", padding: "20px 0", borderLeft: i ? "1px solid var(--line)" : 0 }}
+    <Screen width="medium">
+      <TopBar title="Add your product" subtitle="Upload once. ELEV8 handles the rest." back="/products" />
+      <form className="body" onSubmit={next} id="add-product">
+        <div className="split">
+          <div>
+            <div
+              className="frame"
+              onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+              onDragLeave={() => setDrag(false)}
+              onDrop={(e) => { e.preventDefault(); setDrag(false); setFile(e.dataTransfer.files?.[0]); }}
+              style={{ aspectRatio: "4/5", maxHeight: 520, width: "100%", background: "var(--surface-2)", outline: drag ? "2px dashed var(--violet)" : "none", outlineOffset: -8 }}
             >
-              <span className="tile-icon"><Icon size={20} /></span>
-              <span className="small" style={{ fontWeight: 600 }}>{label}</span>
-              <input ref={ref} type="file" accept="image/*" capture={capture} hidden onChange={onFile} />
-            </button>
-          ))}
-        </div>
+              {draft.photo
+                ? <img src={draft.photo} alt="Product" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                : <GarmentArt scene="room" style={{ opacity: 0.35 }} />}
+              {!draft.photo && (
+                <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", textAlign: "center", padding: 20 }}>
+                  <div>
+                    <p className="h-sm">Drop a product photo here</p>
+                    <p className="tiny muted mt-4">or use the camera / gallery below · JPG, PNG</p>
+                  </div>
+                </div>
+              )}
+              {draft.photo && (
+                <button type="button" onClick={() => update("draft", { photo: null })} className="icon-btn" style={{ position: "absolute", top: 10, right: 10 }} aria-label="Remove photo"><X size={16} /></button>
+              )}
+              {draft.photo && <span className="corner row gap-4" style={{ right: "auto", left: 10 }}><Sparkles size={12} /> Ready to analyse</span>}
+            </div>
+            <div className="card row mt-12" style={{ padding: 6 }}>
+              {[
+                { ref: camRef, icon: Camera, label: "Camera", capture: "environment" },
+                { ref: galRef, icon: ImageIcon, label: "Gallery" },
+              ].map(({ ref, icon: Icon, label, capture }, i) => (
+                <button key={label} type="button" onClick={() => ref.current?.click()} className="grow row gap-10" style={{ justifyContent: "center", padding: "14px 0", borderLeft: i ? "1px solid var(--line)" : 0 }}>
+                  <span className="tile-icon" style={{ width: 36, height: 36 }}><Icon size={18} /></span>
+                  <span className="small" style={{ fontWeight: 600 }}>{label}</span>
+                  <input ref={ref} type="file" accept="image/*" capture={capture} hidden onChange={(e) => setFile(e.target.files?.[0])} />
+                </button>
+              ))}
+            </div>
+          </div>
 
-        <div className="frame mt-12" style={{ height: 170, background: "var(--surface-2)" }}>
-          {draft.photo
-            ? <img src={draft.photo} alt="Product" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            : <GarmentArt scene="room" />}
-          <span className="corner row gap-4"><Sparkles size={12} /> {draft.photo ? "Your photo" : "Sample"}</span>
-        </div>
-
-        <div className="field">
-          <label htmlFor="pn">Product Name</label>
-          <div className="input"><input id="pn" value={draft.name} onChange={set("name")} /></div>
-        </div>
-        <div className="field">
-          <label htmlFor="pc">Category</label>
-          <div className="input">
-            <select id="pc" value={draft.category} onChange={set("category")}>
-              {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-            </select>
-            <span className="adorn"><ChevronDown size={18} /></span>
+          <div>
+            <div className="field" style={{ marginTop: 0 }}>
+              <label htmlFor="pn">Product Name</label>
+              <div className="input" style={touched && !draft.name.trim() ? { borderColor: "var(--red)" } : undefined}>
+                <input id="pn" value={draft.name} onChange={set("name")} placeholder="e.g. Elegant Anarkali" />
+              </div>
+              {touched && !draft.name.trim() && <p className="tiny" style={{ color: "var(--red)" }}>Give your product a name.</p>}
+            </div>
+            <div className="field">
+              <label htmlFor="pc">Category</label>
+              <div className="input">
+                <select id="pc" value={draft.category} onChange={set("category")}>
+                  {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+                </select>
+                <span className="adorn"><ChevronDown size={18} /></span>
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="pp">Price</label>
+              <div className="input" style={touched && !(Number(draft.price) > 0) ? { borderColor: "var(--red)" } : undefined}>
+                <span className="prefix">₹</span>
+                <input id="pp" inputMode="numeric" placeholder="2499" value={draft.price} onChange={(e) => update("draft", { price: e.target.value.replace(/\D/g, "") })} />
+              </div>
+              {touched && !(Number(draft.price) > 0) && <p className="tiny" style={{ color: "var(--red)" }}>Enter a price.</p>}
+            </div>
+            <div className="card pad mt-20 row gap-10" style={{ background: "var(--grad-soft)", border: 0 }}>
+              <Sparkles size={18} color="var(--violet)" style={{ flex: "none" }} />
+              <p className="tiny" style={{ color: "var(--ink-2)", lineHeight: 1.5 }}>ELEV8 will detect colour, fabric, style and audience from the photo — you can edit everything on the next step.</p>
+            </div>
+            <button type="submit" className="btn primary block mt-20 desktop-only">Next</button>
           </div>
         </div>
-        <div className="field">
-          <label htmlFor="pp">Price</label>
-          <div className="input">
-            <span className="prefix">₹</span>
-            <input id="pp" inputMode="numeric" value={draft.price} onChange={(e) => update("draft", { price: e.target.value.replace(/\D/g, "") })} />
-          </div>
-        </div>
-      </div>
-      <div className="footer">
-        <button className="btn primary block" disabled={!draft.name.trim()} onClick={() => router.push("/products/new/analyzing")}>Next</button>
+      </form>
+      <div className="footer mobile-only">
+        <button type="submit" form="add-product" className="btn primary block">Next</button>
       </div>
     </Screen>
   );

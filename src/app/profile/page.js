@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   Building2, Brain, Link2, Bell, ShieldCheck, Mic, Zap, CircleHelp, Lock, LogOut, ChevronRight, Pencil,
 } from "lucide-react";
-import { Screen, TopBar, BottomNav } from "@/components/Screen";
+import { Screen, TopBar } from "@/components/Screen";
 import { useStore } from "@/lib/store";
 
 const ITEMS = [
@@ -14,18 +14,18 @@ const ITEMS = [
   { icon: Bell, label: "Notifications" },
   { icon: ShieldCheck, label: "Approval Preferences", meta: "Always ask" },
   { icon: Mic, label: "Voice Preferences", meta: "Hindi + English" },
-  { icon: Zap, label: "Usage / Credits", meta: "320 left" },
+  { icon: Zap, label: "Usage / Credits" },
   { icon: CircleHelp, label: "Help & Support" },
   { icon: Lock, label: "Privacy" },
 ];
 
 export default function Profile() {
-  const { user, business } = useStore();
+  const { user, business, credits, resetDemo } = useStore();
   const initials = user.name.split(" ").map((w) => w[0]).join("").slice(0, 2);
 
   return (
-    <Screen>
-      <TopBar title="Profile & Settings" back="/home" />
+    <Screen width="narrow">
+      <TopBar title="Profile & Settings" />
       <div className="body">
         <div className="card pad row gap-12">
           <span style={{ width: 56, height: 56, borderRadius: 18, background: "var(--grad)", color: "#fff", display: "grid", placeItems: "center", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20 }}>
@@ -43,8 +43,8 @@ export default function Profile() {
             <p className="small" style={{ fontWeight: 700 }}>ELEV8 Pro</p>
             <span className="tiny" style={{ opacity: .8 }}>Renews 12 Oct</span>
           </div>
-          <div className="progress mt-8" style={{ background: "rgba(255,255,255,.2)" }}><i style={{ width: "64%", background: "#fff" }} /></div>
-          <p className="tiny mt-8" style={{ opacity: .8 }}>320 of 500 AI credits left this month</p>
+          <div className="progress mt-8" style={{ background: "rgba(255,255,255,.2)" }}><i style={{ width: `${(credits / 500) * 100}%`, background: "#fff" }} /></div>
+          <p className="tiny mt-8" style={{ opacity: .8 }}>{credits} of 500 AI credits left this month</p>
         </div>
 
         <div className="card mt-12">
@@ -63,9 +63,9 @@ export default function Profile() {
           })}
         </div>
 
-        <Link href="/welcome" className="btn secondary block mt-16" style={{ color: "var(--red)" }}><LogOut size={17} /> Sign out</Link>
+        <button className="btn secondary block mt-16" onClick={() => { if (confirm("Reset all demo data (products, posts, settings)?")) resetDemo(); }}>Reset demo data</button>
+        <Link href="/welcome" className="btn secondary block mt-8" style={{ color: "var(--red)" }}><LogOut size={17} /> Sign out</Link>
       </div>
-      <BottomNav />
     </Screen>
   );
 }

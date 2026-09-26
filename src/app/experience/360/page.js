@@ -26,8 +26,8 @@ export default function View360() {
   const onUp = () => { drag.current = null; };
 
   return (
-    <Screen tone="soft">
-      <TopBar title="Explore every angle" back="/experience" />
+    <Screen tone="soft" width="narrow">
+      <TopBar title="Explore every angle" subtitle="Drag the model or use the slider to spin it." back="/experience" />
       <div className="body">
         <div
           onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}

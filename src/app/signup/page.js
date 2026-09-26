@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, UserRound, AtSign, Lock } from "lucide-react";
 import { Screen, TopBar } from "@/components/Screen";
 import { useStore } from "@/lib/store";
+import AuthLayout from "@/components/AuthLayout";
 
 export default function Signup() {
   const router = useRouter();
@@ -22,7 +23,8 @@ export default function Signup() {
   };
 
   return (
-    <Screen tone="soft">
+    <AuthLayout headline={<>Your digital AI employee<br />for physical retail.</>}>
+    <Screen tone="soft" width="narrow">
       <TopBar back="/welcome" />
       <form className="body" onSubmit={submit} id="signup">
         <h1 className="h-lg mt-8">Create your account</h1>
@@ -64,11 +66,10 @@ export default function Signup() {
             <AppleGlyph /> Apple
           </button>
         </div>
+        <p className="center small muted mt-24">Already have an account? <Link href="/home" className="link">Sign In</Link></p>
       </form>
-      <div className="footer">
-        <p className="center small muted">Already have an account? <Link href="/home" className="link">Sign In</Link></p>
-      </div>
     </Screen>
+    </AuthLayout>
   );
 }
 

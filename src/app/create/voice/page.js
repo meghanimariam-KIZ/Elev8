@@ -14,7 +14,7 @@ export default function Voice() {
 
   useEffect(() => {
     if (chars >= TRANSCRIPT.length) {
-      const t = setTimeout(() => router.push("/create/interpretation"), 1400);
+      const t = setTimeout(() => router.push(`/create/interpretation?q=${encodeURIComponent(TRANSCRIPT)}`), 1400);
       return () => clearTimeout(t);
     }
     const t = setTimeout(() => setChars((c) => c + 1), chars === 0 ? 900 : 45);
@@ -22,7 +22,7 @@ export default function Voice() {
   }, [chars, router]);
 
   return (
-    <Screen tone="night">
+    <Screen tone="night" width="narrow">
       <TopBar back="/create/feedback" dark />
       <div className="body stack" style={{ alignItems: "center", justifyContent: "center", textAlign: "center" }}>
         <p className="h-md" style={{ color: "#fff" }}>Listening…</p>
@@ -42,7 +42,7 @@ export default function Voice() {
       </div>
       <div className="footer row between" style={{ padding: "12px 44px 40px" }}>
         <Ctl label="Cancel" onClick={() => router.push("/create/feedback")}><X size={24} /></Ctl>
-        <Ctl label="Stop" onClick={() => router.push("/create/interpretation")} light><Square size={20} fill="currentColor" /></Ctl>
+        <Ctl label="Stop" onClick={() => router.push(`/create/interpretation?q=${encodeURIComponent(TRANSCRIPT)}`)} light><Square size={20} fill="currentColor" /></Ctl>
       </div>
       <style>{`
         .wave { display:flex; align-items:center; gap:4px; height:120px; margin: 40px 0 28px; }

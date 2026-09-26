@@ -42,7 +42,7 @@ export default function TryOn() {
   };
 
   return (
-    <Screen tone="black" overlayStatus>
+    <Screen tone="black" className="immersive">
       <div style={{ position: "absolute", inset: 0 }}>
         {/* camera feed or illustrated fallback */}
         <video
@@ -58,7 +58,7 @@ export default function TryOn() {
         {/* garment overlay aligned to a body guide */}
         {cam === "live" && (
           <div style={{ position: "absolute", inset: "14% 8% 6%", opacity: 0.88, mixBlendMode: "multiply" }}>
-            <GarmentArt scene="none" garmentOnly variant={p.variant} color={p.color} accent={p.accent} />
+            <GarmentArt scene="none" garmentOnly fit="meet" align="xMidYMid" variant={p.variant} color={p.color} accent={p.accent} />
           </div>
         )}
         {cam === "live" && <div className="guide" />}
@@ -67,13 +67,13 @@ export default function TryOn() {
       </div>
 
       {/* top controls */}
-      <div className="row between" style={{ position: "relative", padding: "6px 16px" }}>
-        <Link href="/experience" className="icon-btn dark" aria-label="Back"><ChevronLeft size={22} /></Link>
+      <div className="row between" style={{ position: "relative", padding: "6px 16px", width: "100%", maxWidth: 960, margin: "0 auto" }}>
+        <Link href="/experience" className="icon-btn dark" aria-label="Back" style={{ marginTop: 10 }}><ChevronLeft size={22} /></Link>
         <div className="row gap-6" style={{ padding: 4, borderRadius: 99, background: "rgba(255,255,255,.14)", backdropFilter: "blur(12px)" }}>
           <span className="chip grad on" style={{ height: 30 }}><Sparkles size={13} /> Try-On</span>
           <Link href="/experience/360" className="chip" style={{ height: 30, background: "transparent", border: 0, color: "#fff" }}>360°</Link>
         </div>
-        <button className="icon-btn dark" aria-label="Full screen"><Maximize size={18} /></button>
+        <button className="icon-btn dark" style={{ marginTop: 10 }} aria-label="Full screen" onClick={() => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.())}><Maximize size={18} /></button>
       </div>
 
       {cam === "denied" && (

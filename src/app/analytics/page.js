@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { TrendingUp, Eye, Heart, ShoppingBag, Sparkles } from "lucide-react";
-import { Screen, TopBar, BottomNav } from "@/components/Screen";
+import { TrendingUp, Eye, Heart, ShoppingBag, Sparkles, Send } from "lucide-react";
+import { Screen, TopBar } from "@/components/Screen";
 import GarmentArt from "@/components/GarmentArt";
 import { Sparkline, Bars } from "@/components/Charts";
 import { useStore, inr } from "@/lib/store";
@@ -15,60 +15,83 @@ const DATA = {
   Content: { reach: [3.2, 3.9, 4.4, 5.1, 6.6, 8.1, 9.0].map((v) => v * 1000), eng: [400, 460, 520, 690, 780, 1100, 1300], clicks: [30, 34, 41, 52, 60, 72, 88] },
   Products: { reach: [2.2, 2.9, 3.1, 3.3, 4.4, 5.9, 6.4].map((v) => v * 1000), eng: [210, 280, 300, 390, 470, 640, 720], clicks: [22, 28, 33, 35, 44, 58, 71] },
 };
+const sum = (a) => a.reduce((x, y) => x + y, 0);
 
 export default function Analytics() {
-  const { products } = useStore();
+  const { products, posts } = useStore();
   const [tab, setTab] = useState("Overview");
   const d = DATA[tab];
-  const sum = (a) => a.reduce((x, y) => x + y, 0);
-  const top = products[0];
+  const published = posts.filter((p) => p.status === "published");
+  // Stable pseudo-reach per product so the ranking looks plausible without a backend.
+  const ranked = products
+    .map((p, i) => ({ ...p, reach: 44200 - i * 6100 + (posts.filter((x) => x.productId === p.id).length * 2300) }))
+    .sort((a, b) => b.reach - a.reach)
+    .slice(0, 4);
+  const topReach = ranked[0]?.reach || 1;
 
   return (
     <Screen>
-      <TopBar title="Analytics" back="/home" right={<span className="chip soft" style={{ height: 30 }}>Last 7 days</span>} />
-      <div className="body">
+      <TopBar title="Analytics" subtitle="Last 7 days" right={
         <div className="row gap-4" style={{ padding: 4, background: "var(--surface-2)", borderRadius: 14 }}>
           {Object.keys(DATA).map((t) => (
-            <button key={t} onClick={() => setTab(t)} className="grow" style={{ height: 34, borderRadius: 10, fontSize: 13, fontWeight: 600, background: tab === t ? "var(--surface)" : "transparent", boxShadow: tab === t ? "var(--shadow-sm)" : "none", color: tab === t ? "var(--ink)" : "var(--ink-3)" }}>{t}</button>
+            <button key={t} onClick={() => setTab(t)} style={{ height: 34, padding: "0 14px", borderRadius: 10, fontSize: 13, fontWeight: 600, background: tab === t ? "var(--surface)" : "transparent", boxShadow: tab === t ? "var(--shadow-sm)" : "none", color: tab === t ? "var(--ink)" : "var(--ink-3)" }}>{t}</button>
           ))}
         </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="mt-16">
+      } />
+      <div className="body">
+        <div className="g-4">
           <Stat icon={Eye} label="Reach" value={k(sum(d.reach))} delta="+12%" data={d.reach} />
           <Stat icon={Heart} label="Engagement" value={k(sum(d.eng))} delta="+18%" data={d.eng} />
+          <Stat icon={ShoppingBag} label="Shop Now clicks" value={sum(d.clicks)} delta="+24%" data={d.clicks} />
+          <div className="card" style={{ padding: "14px 14px 10px" }}>
+            <p className="tiny muted row gap-4"><Send size={13} /> Posts published</p>
+            <p className="h-md mt-4">{published.length}</p>
+            <p className="tiny muted mt-8">{posts.length - published.length} scheduled or in draft</p>
+          </div>
         </div>
 
-        <div className="card pad mt-12">
-          <div className="row between">
-            <div>
-              <p className="tiny muted row gap-4"><ShoppingBag size={13} /> Shop Now clicks</p>
-              <p className="h-md mt-4">{sum(d.clicks)}</p>
+        <div className="split mt-16">
+          <div className="card pad">
+            <div className="row between">
+              <div>
+                <p className="h-sm">Shop Now clicks per day</p>
+                <p className="tiny muted">Customers who tapped through to buy</p>
+              </div>
+              <span className="badge green"><TrendingUp size={12} /> +24%</span>
             </div>
-            <span className="badge green"><TrendingUp size={12} /> +24%</span>
+            <div className="mt-24"><Bars data={d.clicks} labels={DAYS} height={180} format={(v) => `${v} clicks`} /></div>
           </div>
-          <div className="mt-24"><Bars data={d.clicks} labels={DAYS} format={(v) => `${v} clicks`} /></div>
-        </div>
 
-        <div className="section-title"><h3>Top Performing Product</h3></div>
-        <div className="card row gap-12" style={{ padding: 10 }}>
-          <div className="frame" style={{ width: 60, height: 72, borderRadius: 12, flex: "none" }}>
-            <GarmentArt variant={top.variant} color={top.color} accent={top.accent} scene="room" />
+          <div className="stack gap-12">
+            <div className="card pad">
+              <p className="h-sm">Top performing products</p>
+              <div className="stack gap-12 mt-12">
+                {ranked.map((p) => (
+                  <div key={p.id} className="row gap-12">
+                    <div className="frame" style={{ width: 44, height: 54, borderRadius: 10, flex: "none" }}>
+                      <GarmentArt variant={p.variant} color={p.color} accent={p.accent} scene="room" />
+                    </div>
+                    <div className="grow" style={{ minWidth: 0 }}>
+                      <div className="row between gap-8">
+                        <p className="small" style={{ fontWeight: 700 }}>{p.name}</p>
+                        <p className="tiny muted">{k(p.reach)}</p>
+                      </div>
+                      <p className="tiny muted">{inr(p.price)}</p>
+                      <div className="progress mt-4" style={{ height: 5 }}><i style={{ width: `${(p.reach / topReach) * 100}%` }} /></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="card row gap-10" style={{ padding: 14, background: "var(--grad-soft)", border: 0 }}>
+              <Sparkles size={18} color="var(--violet)" style={{ flex: "none" }} />
+              <p className="tiny" style={{ color: "var(--ink-2)", lineHeight: 1.5 }}>
+                <b>Insight:</b> Lifestyle backgrounds get 2.1× more saves than studio shots. ELEV8 will favour them for your next posts.
+              </p>
+            </div>
           </div>
-          <div className="grow">
-            <p className="small" style={{ fontWeight: 700 }}>{top.name}</p>
-            <p className="tiny muted">{inr(top.price)} · 44.2K reach</p>
-            <div className="progress mt-8" style={{ height: 5 }}><i style={{ width: "82%" }} /></div>
-          </div>
-        </div>
-
-        <div className="card row gap-10 mt-12" style={{ padding: 14, background: "var(--grad-soft)", border: 0 }}>
-          <Sparkles size={18} color="var(--violet)" style={{ flex: "none" }} />
-          <p className="tiny" style={{ color: "var(--ink-2)", lineHeight: 1.5 }}>
-            <b>Insight:</b> Lifestyle backgrounds get 2.1× more saves than studio shots. ELEV8 will favour them for your next posts.
-          </p>
         </div>
       </div>
-      <BottomNav />
     </Screen>
   );
 }

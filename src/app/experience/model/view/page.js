@@ -22,7 +22,7 @@ function ModelView() {
   const L = looks[look] || looks[0];
 
   return (
-    <Screen tone="black" overlayStatus>
+    <Screen tone="black" className="immersive">
       <div style={{ position: "absolute", inset: 0 }}>
         <div style={{ position: "absolute", inset: 0, background: `linear-gradient(${(SCENES[scene] || SCENES.room).wall[0]}, ${(SCENES[scene] || SCENES.room).wall[1]} 70%, ${(SCENES[scene] || SCENES.room).floor})` }} />
         <GarmentArt
@@ -31,7 +31,7 @@ function ModelView() {
         />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,.35), transparent 20%, transparent 62%, rgba(10,8,30,.85))" }} />
       </div>
-      <div className="row between" style={{ position: "relative", padding: "6px 16px" }}>
+      <div className="row between" style={{ position: "relative", padding: "16px 16px 6px", width: "100%", maxWidth: 960, margin: "0 auto" }}>
         <Link href="/experience/model" className="icon-btn dark" aria-label="Back"><ChevronLeft size={22} /></Link>
         <span className="chip" style={{ background: "rgba(255,255,255,.16)", border: 0, color: "#fff", backdropFilter: "blur(10px)" }}>
           <Sparkles size={13} /> AI Model · {m.name}
@@ -41,7 +41,7 @@ function ModelView() {
         </button>
       </div>
       <div style={{ flex: 1 }} />
-      <div style={{ position: "relative", padding: "0 20px 34px", color: "#fff" }}>
+      <div style={{ position: "relative", padding: "0 20px 34px", color: "#fff", width: "100%", maxWidth: 520, margin: "0 auto" }}>
         <p className="h-md" style={{ color: "#fff" }}>{L.name || "Festive Kurta Set"}</p>
         <p className="tiny" style={{ opacity: .7 }}>{params.get("body") || "Regular"} fit · {scene} scene</p>
         {looks.length > 1 && (

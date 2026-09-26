@@ -1,25 +1,45 @@
+"use client";
+
+import { Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Image as ImageIcon, Lock, Type, Check, Minus, Sparkles } from "lucide-react";
 import { Screen, TopBar } from "@/components/Screen";
 
-const CHANGES = [
-  { icon: ImageIcon, label: "Background", value: "Premium luxury environment", state: "change" },
-  { icon: Lock, label: "Product", value: "Keep unchanged", state: "lock" },
-  { icon: Type, label: "Caption", value: "No change", state: "same" },
-];
+const DEFAULT_REQUEST = "Make the background more luxurious, but keep the dress exactly the same.";
 
-export default function Interpretation() {
+/** Tiny keyword "interpreter" standing in for the real language model. */
+function interpret(req) {
+  const r = req.toLowerCase();
+  const bg = /background|luxur|festive|outdoor|studio|scene|setting/.test(r);
+  const caption = /caption|text|hashtag|shorten|shorter/.test(r);
+  const bigger = /bigger|zoom|closer|larger/.test(r);
+  return [
+    { icon: ImageIcon, label: "Background", value: bg ? (/festive/.test(r) ? "Festive décor" : /outdoor/.test(r) ? "Outdoor garden" : "Premium luxury environment") : "No change", state: bg ? "change" : "same" },
+    { icon: Lock, label: "Product", value: bigger ? "Larger in frame, details kept" : "Keep unchanged", state: bigger ? "change" : "lock" },
+    { icon: Type, label: "Caption", value: caption ? "Shorter, same hashtags" : "No change", state: caption ? "change" : "same" },
+  ];
+}
+
+function Interpretation() {
+  const params = useSearchParams();
+  const request = params.get("q") || DEFAULT_REQUEST;
+  const changes = interpret(request);
+  const summary = changes.filter((c) => c.state === "change").map((c) => c.label.toLowerCase());
+
   return (
-    <Screen tone="soft">
+    <Screen tone="soft" width="narrow">
       <TopBar back="/create/feedback" />
       <div className="body">
         <span className="tile-icon solid" style={{ width: 48, height: 48, borderRadius: 16 }}><Sparkles size={22} /></span>
         <h1 className="h-xl mt-16">Got it.</h1>
-        <p className="sub mt-8" style={{ fontSize: 16 }}>I’ll update the background and keep the product unchanged.</p>
+        <p className="sub mt-8" style={{ fontSize: 16 }}>
+          {summary.length ? `I'll update the ${summary.join(" and ")} and keep everything else unchanged.` : "I'll refresh the visuals and keep the product unchanged."}
+        </p>
 
         <p className="eyebrow mt-24">What I’ll change</p>
         <div className="card mt-8">
-          {CHANGES.map(({ icon: Icon, label, value, state }) => (
+          {changes.map(({ icon: Icon, label, value, state }) => (
             <div key={label} className="list-row">
               <span className="tile-icon" style={{ width: 36, height: 36 }}><Icon size={17} /></span>
               <p className="grow small" style={{ fontWeight: 700 }}>{label}</p>
@@ -31,9 +51,7 @@ export default function Interpretation() {
           ))}
         </div>
 
-        <div className="card pad mt-12 small" style={{ background: "transparent", borderStyle: "dashed", color: "var(--ink-2)" }}>
-          “Make the background more luxurious, but keep the dress exactly the same.”
-        </div>
+        <div className="card pad mt-12 small" style={{ background: "transparent", borderStyle: "dashed", color: "var(--ink-2)" }}>“{request}”</div>
       </div>
       <div className="footer stack gap-8">
         <Link href="/create/regenerating" className="btn primary block">Regenerate</Link>
@@ -41,4 +59,8 @@ export default function Interpretation() {
       </div>
     </Screen>
   );
+}
+
+export default function Page() {
+  return <Suspense><Interpretation /></Suspense>;
 }

@@ -20,8 +20,8 @@ export default function Feedback() {
   const toggle = (t) => setPicked((p) => (p.includes(t) ? p.filter((x) => x !== t) : [...p, t]));
 
   return (
-    <Screen>
-      <TopBar title="What would you like to change?" back="/create/review" />
+    <Screen width="narrow">
+      <TopBar title="What would you like to change?" subtitle="Pick suggestions, talk, or type — ELEV8 regenerates only what you ask." back="/create/review" />
       <div className="body">
         <p className="eyebrow mt-8">Quick suggestions</p>
         <div className="card mt-8">
@@ -45,7 +45,7 @@ export default function Feedback() {
         <p className="center tiny muted mt-8">Hold a quick conversation — in Hindi or English.</p>
       </div>
       <div className="footer">
-        <form className="input" style={{ paddingRight: 6 }} onSubmit={(e) => { e.preventDefault(); router.push("/create/interpretation"); }}>
+        <form className="input" style={{ paddingRight: 6 }} onSubmit={(e) => { e.preventDefault(); router.push(`/create/interpretation?q=${encodeURIComponent(text || picked.join(". "))}`); }}>
           <input placeholder="Or type your request…" value={text} onChange={(e) => setText(e.target.value)} aria-label="Type your request" />
           <button type="submit" className="icon-btn" style={{ background: "var(--grad)", color: "#fff", border: 0 }} aria-label="Send" disabled={!text && picked.length === 0}>
             <Send size={17} />

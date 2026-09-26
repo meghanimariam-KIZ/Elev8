@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Check, Images, Rotate3d } from "lucide-react";
 import { Screen, TopBar } from "@/components/Screen";
 import { useStore } from "@/lib/store";
+import GarmentArt from "@/components/GarmentArt";
 
 const OPTIONS = [
   {
@@ -20,16 +21,20 @@ const OPTIONS = [
 
 export default function ChooseExperience() {
   const router = useRouter();
-  const { experiences, update } = useStore();
+  const { experiences, update, current } = useStore();
   const any = experiences.social || experiences.virtual;
 
   return (
-    <Screen>
-      <TopBar back="/products/new/details" />
+    <Screen width="medium">
+      <TopBar title="What would you like to create?" subtitle="Pick one or both — ELEV8 builds everything in one go." back="/products" />
       <div className="body">
-        <h1 className="h-lg">What would you like to create?</h1>
-        <p className="sub mt-4">Pick one or both — ELEV8 builds everything in one go.</p>
-        <div className="stack gap-12 mt-20">
+        {current && (
+          <div className="card row gap-12" style={{ padding: 10, maxWidth: 420 }}>
+            <div className="frame" style={{ width: 44, height: 54, borderRadius: 10, flex: "none" }}><GarmentArt variant={current.variant} color={current.color} accent={current.accent} scene="studio" /></div>
+            <div className="grow"><p className="tiny muted">Creating for</p><p className="small" style={{ fontWeight: 700 }}>{current.name}</p></div>
+          </div>
+        )}
+        <div className="g-2 mt-16">
           {OPTIONS.map(({ key, icon: Icon, title, text, bg, points }) => {
             const on = experiences[key];
             return (
@@ -67,7 +72,7 @@ export default function ChooseExperience() {
         </div>
       </div>
       <div className="footer">
-        <button className="btn primary block" disabled={!any} onClick={() => router.push("/create/processing")}>Continue</button>
+        <button className="btn primary block" style={{ maxWidth: 420, marginLeft: "auto", display: "flex" }} disabled={!any} onClick={() => router.push("/create/processing")}>Continue</button>
       </div>
     </Screen>
   );

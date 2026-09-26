@@ -14,7 +14,7 @@ export default function MonthCalendar({ month, onMonth, selected, onSelect, even
   const today = new Date();
   const isThisMonth = today.getFullYear() === year && today.getMonth() === m;
   const cells = [...Array(first).fill(null), ...Array.from({ length: days }, (_, i) => i + 1)];
-  const cell = compact ? 34 : 40;
+  const cell = compact ? 36 : 44;
 
   return (
     <div>
@@ -34,7 +34,7 @@ export default function MonthCalendar({ month, onMonth, selected, onSelect, even
             <button
               key={d} onClick={() => onSelect(d)} aria-pressed={on}
               style={{
-                height: cell, width: cell, margin: "0 auto", borderRadius: 12, position: "relative",
+                height: cell, width: "100%", maxWidth: cell + 14, margin: "0 auto", borderRadius: 12, position: "relative",
                 fontSize: 13, fontWeight: on || isToday ? 700 : 500,
                 background: on ? "var(--grad)" : "transparent", color: on ? "#fff" : isToday ? "var(--violet)" : "var(--ink)",
                 boxShadow: isToday && !on ? "inset 0 0 0 1.5px var(--violet)" : "none",

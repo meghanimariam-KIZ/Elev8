@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Palette, Scissors, Shirt, Triangle, Users, Tags, Pencil, Check, Sparkles } from "lucide-react";
 import { Screen, TopBar } from "@/components/Screen";
 import GarmentArt from "@/components/GarmentArt";
-import { useStore } from "@/lib/store";
+import { useStore, PALETTES } from "@/lib/store";
 
 const INITIAL = [
   { key: "material", icon: Scissors, label: "Material", value: "Embroidered Georgette" },
@@ -15,28 +15,37 @@ const INITIAL = [
 ];
 const TAGS = ["Elegant", "Traditional", "Premium", "Wedding season", "Handcrafted"];
 const COLORS = ["#e2667e", "#ec8aa0", "#c9485f", "#f3c46a"];
+const VARIANT_BY_CATEGORY = { Sarees: "saree", Bridal: "lehenga", Kurtas: "kurta" };
 
 export default function Details() {
   const router = useRouter();
-  const { draft, addProduct } = useStore();
+  const { draft, addProduct, update, products } = useStore();
   const [attrs, setAttrs] = useState(INITIAL);
   const [editing, setEditing] = useState(null);
   const [tags, setTags] = useState(TAGS.slice(0, 3));
 
   const save = () => {
+    const palette = PALETTES[products.length % PALETTES.length];
     addProduct({
-      name: draft.name, price: Number(draft.price) || 0, category: draft.category,
-      variant: "anarkali", color: "#e2667e", accent: "#f3c46a", status: "review", channel: "social",
+      name: draft.name || "Untitled product", price: Number(draft.price) || 0, category: draft.category,
+      variant: VARIANT_BY_CATEGORY[draft.category] || "anarkali", ...palette, status: "draft", channel: "social",
+      attributes: Object.fromEntries(attrs.map((a) => [a.key, a.value])), tags,
     });
+    update("draft", { name: "", price: "", photo: null });
     router.push("/create");
   };
 
   return (
-    <Screen>
-      <TopBar title="Product Details" back="/products/new" right={<span className="badge violet" style={{ marginRight: 6 }}><Sparkles size={12} />AI suggested</span>} />
+    <Screen width="medium">
+      <TopBar title="Product Details" subtitle="Check what ELEV8 detected. Tap the pencil to fix anything." back="/products/new" right={<span className="badge violet" style={{ marginRight: 6 }}><Sparkles size={12} />AI suggested</span>} />
       <div className="body">
+        <div className="split">
+        <div className="stack gap-12">
+        <div className="frame desktop-only" style={{ aspectRatio: "4/5", maxHeight: 460 }}>
+          {draft.photo ? <img src={draft.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <GarmentArt scene="room" />}
+        </div>
         <div className="card row gap-12" style={{ padding: 12 }}>
-          <div className="frame" style={{ width: 64, height: 78, borderRadius: 12, flex: "none" }}>
+          <div className="frame mobile-only" style={{ width: 64, height: 78, borderRadius: 12, flex: "none" }}>
             {draft.photo ? <img src={draft.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <GarmentArt scene="room" />}
           </div>
           <div className="grow">
@@ -48,7 +57,9 @@ export default function Details() {
           </div>
         </div>
 
-        <div className="card mt-12">
+        </div>
+        <div>
+        <div className="card">
           {attrs.map((a) => {
             const Icon = a.icon;
             const isEdit = editing === a.key;
@@ -84,8 +95,11 @@ export default function Details() {
             ))}
           </div>
         </div>
+        <button className="btn primary block mt-20 desktop-only" onClick={save}>Continue</button>
+        </div>
+        </div>
       </div>
-      <div className="footer">
+      <div className="footer mobile-only">
         <button className="btn primary block" onClick={save}>Continue</button>
       </div>
     </Screen>

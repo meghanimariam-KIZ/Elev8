@@ -6,6 +6,7 @@ import { Store, MapPin, LocateFixed, ImagePlus, X, ChevronDown } from "lucide-re
 import { Screen, TopBar } from "@/components/Screen";
 import GarmentArt from "@/components/GarmentArt";
 import { useStore } from "@/lib/store";
+import AuthLayout from "@/components/AuthLayout";
 
 const CATEGORIES = ["Ethnic Wear", "Sarees", "Bridal", "Kurtas", "Western Wear", "Jewellery", "Footwear"];
 
@@ -22,7 +23,8 @@ export default function BusinessSetup() {
   };
 
   return (
-    <Screen tone="soft">
+    <AuthLayout variant="lehenga" scene="room" headline={<>Built for your store,<br />not a template.</>} copy="Tell ELEV8 where you sell and what you sell — every post and experience adapts to it.">
+    <Screen tone="soft" width="narrow">
       <TopBar back="/signup">
         <div className="stepper" style={{ width: 120, marginRight: 8 }}><i className="on" /><i className="on" /><i /></div>
       </TopBar>
@@ -95,5 +97,6 @@ export default function BusinessSetup() {
         </button>
       </div>
     </Screen>
+    </AuthLayout>
   );
 }
