@@ -11,6 +11,16 @@ npm run dev      # http://localhost:3000
 npm run build && npm start
 ```
 
+**Windows: "Turbopack is not supported on this platform" / "not a valid Win32 application"?**
+Next.js's native compiler failed to load. Use the Webpack scripts instead:
+
+```bash
+npm run dev:webpack
+npm run build:webpack && npm start
+```
+
+To get the faster default working again, reinstall clean: delete `node_modules`, run `npm cache clean --force`, then `npm install`. Make sure your Node.js is 64-bit and version 20.9 or newer.
+
 On desktop the app renders inside a phone frame with a screen navigator on the left. Below 900px wide it goes full-screen like a native app.
 
 ## Screens
