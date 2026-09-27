@@ -22,15 +22,14 @@ const ITEMS = [
 
 export default function Profile() {
   const { user, business, credits, resetDemo } = useStore();
-  const initials = user.name.split(" ").map((w) => w[0]).join("").slice(0, 2);
 
   return (
     <Screen width="narrow">
       <TopBar title="Profile & Settings" />
       <div className="body">
         <div className="card pad row gap-12">
-          <span style={{ width: 56, height: 56, borderRadius: 18, background: "var(--grad)", color: "#fff", display: "grid", placeItems: "center", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20 }}>
-            {initials}
+          <span style={{ width: 56, height: 56, borderRadius: 18, background: "var(--grad-soft)", border: "1px solid var(--line)", display: "grid", placeItems: "center", flex: "none" }}>
+            <Logo size={36} markOnly />
           </span>
           <div className="grow">
             <p className="h-sm">{user.name}</p>

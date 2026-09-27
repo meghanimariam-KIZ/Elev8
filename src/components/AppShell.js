@@ -50,7 +50,6 @@ export default function AppShell({ children }) {
 
 function Sidebar({ pathname }) {
   const { user, business, credits } = useStore();
-  const initials = user.name.split(" ").map((w) => w[0]).join("").slice(0, 2);
   return (
     <aside className="sidebar" aria-label="Main navigation">
       <Link href="/home" className="side-logo"><Logo size={26} /></Link>
@@ -69,7 +68,9 @@ function Sidebar({ pathname }) {
         <div className="progress mt-8" style={{ height: 5 }}><i style={{ width: `${(credits / 500) * 100}%` }} /></div>
       </div>
       <Link href="/profile" className={`side-link${pathname === "/profile" ? " active" : ""}`} style={{ height: 56 }}>
-        <span style={{ width: 34, height: 34, borderRadius: 11, background: "var(--grad)", color: "#fff", display: "grid", placeItems: "center", fontSize: 13, fontWeight: 700, flex: "none" }}>{initials}</span>
+        <span style={{ width: 34, height: 34, borderRadius: 11, background: "var(--grad-soft)", border: "1px solid var(--line)", display: "grid", placeItems: "center", flex: "none" }}>
+          <Logo size={22} markOnly />
+        </span>
         <span className="grow" style={{ minWidth: 0 }}>
           <span style={{ display: "block", fontSize: 13.5, color: "var(--ink)" }}>{user.name}</span>
           <span className="tiny muted" style={{ display: "block", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{business.name}</span>
