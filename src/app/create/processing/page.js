@@ -31,6 +31,10 @@ export default function Processing() {
 
     (async () => {
       try {
+        if (!current.photo) {
+          throw new Error("This product has no photo yet. Go back and add one before generating content.");
+        }
+
         const res = await fetch("/api/generate-content", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -42,7 +46,7 @@ export default function Processing() {
             brandName: business.name,
             brandStyle: brand.tone.join(", "),
             targetAudience: brand.audience.join(", "),
-            productImageUrl: current.photo || "",
+            productImageUrl: current.photo,
             platforms: DEFAULT_PLATFORMS,
             editInstructions: "",
           }),

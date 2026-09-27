@@ -34,6 +34,10 @@ function Regenerating() {
 
     (async () => {
       try {
+        if (!current.photo) {
+          throw new Error("This product has no photo yet. Go back and add one before regenerating content.");
+        }
+
         const res = await fetch("/api/generate-content", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -45,7 +49,7 @@ function Regenerating() {
             brandName: business.name,
             brandStyle: brand.tone.join(", "),
             targetAudience: brand.audience.join(", "),
-            productImageUrl: current.photo || "",
+            productImageUrl: current.photo,
             platforms: DEFAULT_PLATFORMS,
             editInstructions,
           }),
