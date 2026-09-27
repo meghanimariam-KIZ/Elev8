@@ -13,7 +13,7 @@ const ITEMS = ["Understanding product", "Applying brand style", "Creating visual
 
 export default function Processing() {
   const router = useRouter();
-  const { current, business, brand, updateProduct } = useStore();
+  const { current, business, brand, contentTypes, updateProduct } = useStore();
   const [step, setStep] = useState(0);
   const [error, setError] = useState(null);
   const started = useRef(false);
@@ -48,6 +48,7 @@ export default function Processing() {
             targetAudience: brand.audience.join(", "),
             productImageUrl: current.photo,
             platforms: DEFAULT_PLATFORMS,
+            contentTypes,
             editInstructions: "",
           }),
         });
@@ -72,7 +73,7 @@ export default function Processing() {
         setError(err.message || "Something went wrong while generating your content.");
       }
     })();
-  }, [current, business, brand, router, updateProduct]);
+  }, [current, business, brand, contentTypes, router, updateProduct]);
 
   if (!current) {
     return (

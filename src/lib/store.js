@@ -49,6 +49,7 @@ const INITIAL = {
   currentId: "p1",
   draft: { name: "", category: "Ethnic Wear", price: "", photo: null, imageUrl: null },
   experiences: { social: true, virtual: true },
+  contentTypes: { image: true, video: false },
   credits: 320,
 };
 
