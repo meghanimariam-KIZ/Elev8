@@ -37,7 +37,7 @@ function seedPosts() {
 
 const INITIAL = {
   user: { name: "Tara Sharma", email: "+91 98765 43210" },
-  business: { name: "Tara Ethnic Wear", category: "Ethnic Wear", location: "Jaipur, Rajasthan" },
+  business: { name: "Tara Ethnic Wear", category: "Ethnic Wear", categories: [], location: "Jaipur, Rajasthan" },
   brand: {
     colors: ["#e2667e", "#f3c46a", "#2b1a2f"],
     tone: ["Elegant", "Festive"],

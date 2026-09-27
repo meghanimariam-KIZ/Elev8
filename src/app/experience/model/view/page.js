@@ -27,6 +27,7 @@ function ModelView() {
         <div style={{ position: "absolute", inset: 0, background: `linear-gradient(${(SCENES[scene] || SCENES.room).wall[0]}, ${(SCENES[scene] || SCENES.room).wall[1]} 70%, ${(SCENES[scene] || SCENES.room).floor})` }} />
         <GarmentArt
           scene={scene} fit="meet" align="xMidYMax" variant={L.variant} color={L.color} accent={L.accent} skin={m.skin} hair={m.hair}
+          gender={male ? "Male" : "Female"} beard={m.beard}
           style={{ position: "absolute", left: 0, top: 70, width: "100%", height: "calc(100% - 270px)" }}
         />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,.35), transparent 20%, transparent 62%, rgba(10,8,30,.85))" }} />

@@ -21,6 +21,8 @@ export default function GarmentArt({
   accent = "#f3c46a",
   skin = "#d9a17e",
   hair = "#2b1a17",
+  gender,
+  beard = false,
   scene = "room",
   showFigure = true,
   mirror = false,
@@ -34,6 +36,7 @@ export default function GarmentArt({
   const uid = useId().replace(/:/g, "");
   const s = SCENES[scene];
   const g = (n) => `${n}-${uid}`;
+  const isMale = gender ? gender === "Male" : variant === "kurta";
 
   return (
     <svg
@@ -76,8 +79,12 @@ export default function GarmentArt({
       {showFigure && (
         <g transform={mirror ? "translate(200 0) scale(-1 1)" : undefined}>
           {/* floor shadow */}
-          <ellipse cx="100" cy="246" rx={variant === "saree" || variant === "kurta" ? 34 : 62} ry="6" fill="#000" opacity=".12" />
-          <Figure variant={variant} g={g} skin={skin} hair={hair} accent={accent} color={color} garmentOnly={garmentOnly} back={back} />
+          <ellipse cx="100" cy="246" rx={variant === "saree" || variant === "kurta" || isMale ? 34 : 62} ry="6" fill="#000" opacity=".12" />
+          {isMale ? (
+            <FigureMale variant={variant} g={g} skin={skin} hair={hair} accent={accent} color={color} garmentOnly={garmentOnly} back={back} beard={beard} />
+          ) : (
+            <Figure variant={variant} g={g} skin={skin} hair={hair} accent={accent} color={color} garmentOnly={garmentOnly} back={back} />
+          )}
         </g>
       )}
     </svg>
@@ -269,6 +276,137 @@ function Figure({ variant, g, skin, hair, accent, color, garmentOnly, back }) {
       {/* sheer dupatta */}
       <path d="M116 70 Q138 90 140 150 Q142 196 132 232 L124 230 Q132 190 128 150 Q124 104 108 80Z" fill="#fff" opacity=".22" />
       <path d="M132 232 L124 230" stroke={accent} strokeWidth="2" />
+    </g>
+  );
+}
+
+function FigureMale({ variant, g, skin, hair, accent, color, garmentOnly, back, beard }) {
+  const cloth = `url(#${g("cloth")})`;
+  const fold = `url(#${g("fold")})`;
+  const skinShade = shade(skin, -14);
+  const skinShadow = shade(skin, -22);
+  const trouserColor = "#f5efe6"; // clean off-white / ivory churidar
+
+  const head = garmentOnly ? null : (
+    <g>
+      {/* Neck - masculine, broader */}
+      <rect x="94" y="52" width="12" height="18" rx="2" fill={skinShade} />
+      {/* Head base */}
+      <path
+        d="M88 40 C88 28 112 28 112 40 C112 50 108 57 100 57 C92 57 88 50 88 40 Z"
+        fill={back ? hair : skin}
+      />
+      {/* Ears */}
+      <ellipse cx="87" cy="43" rx="2.2" ry="3.5" fill={skinShade} />
+      <ellipse cx="113" cy="43" rx="2.2" ry="3.5" fill={skinShade} />
+
+      {back ? (
+        /* Male hair back - neat tapered crop */
+        <path d="M86 42 C86 24 114 24 114 42 C114 50 108 53 100 53 C92 53 86 50 86 42 Z" fill={hair} />
+      ) : (
+        <>
+          {/* Male hair front - short modern pompadour / textured fade */}
+          <path d="M86 40 C85 23 115 23 114 40 C114 44 112 46 110 46 C110 38 108 30 100 30 C92 30 90 38 90 46 C88 46 86 44 86 40 Z" fill={hair} />
+          {/* Styled volume on top */}
+          <path d="M86 36 C85 20 95 18 102 18 C110 18 115 22 114 34 C109 25 104 25 98 26 C92 27 88 30 86 36 Z" fill={hair} />
+          {/* Sideburns */}
+          <path d="M87 39 L88.5 45 L90 45 L89 39 Z" fill={hair} />
+          <path d="M113 39 L111.5 45 L110 45 L111 39 Z" fill={hair} />
+
+          {/* Strong masculine eyebrows */}
+          <path d="M91 38 Q95.5 36 98 38" stroke={hair} strokeWidth="1.8" strokeLinecap="round" fill="none" />
+          <path d="M102 38 Q104.5 36 109 38" stroke={hair} strokeWidth="1.8" strokeLinecap="round" fill="none" />
+
+          {/* Minimal facial definition */}
+          <path d="M100 39 V46 L98.5 47" stroke={skinShadow} strokeWidth="1.1" strokeLinecap="round" fill="none" opacity=".5" />
+
+          {/* Groomed short stubble/beard */}
+          {beard && (
+            <path
+              d="M88.5 44 C88.5 53 93.5 57 100 57 C106.5 57 111.5 53 111.5 44 C111.5 51 106 55.5 100 55.5 C94 55.5 88.5 51 88.5 44 Z"
+              fill={hair}
+              opacity=".45"
+            />
+          )}
+        </>
+      )}
+    </g>
+  );
+
+  const arms = () => (
+    <g opacity={garmentOnly ? 0 : 1}>
+      {/* Broad masculine arms */}
+      {/* Skin hands */}
+      <circle cx="68" cy="134" r="3.6" fill={skin} />
+      <circle cx="132" cy="134" r="3.6" fill={skin} />
+
+      {/* Kurta sleeves (broad shoulders) */}
+      <path d="M72 72 Q63 98 65 128 L72 129 Q72 102 81 78 Z" fill={cloth} />
+      <path d="M128 72 Q137 98 135 128 L128 129 Q128 102 119 78 Z" fill={cloth} />
+      {/* Sleeve cuffs with accent */}
+      <path d="M65 127 L72 128" stroke={accent} strokeWidth="2" strokeLinecap="round" />
+      <path d="M135 127 L128 128" stroke={accent} strokeWidth="2" strokeLinecap="round" />
+
+      {/* Modern watch on left wrist */}
+      <rect x="64.5" y="129" width="6" height="2.5" rx="1" fill="#1e2230" />
+      <circle cx="67.5" cy="130.2" r="1.1" fill={accent} />
+    </g>
+  );
+
+  return (
+    <g>
+      {head}
+      {arms()}
+
+      {/* Churidar / Trousers */}
+      <g>
+        {/* Left leg */}
+        <path d="M84 186 L85 240 H94 L97 186 Z" fill={trouserColor} />
+        {/* Right leg */}
+        <path d="M103 186 L106 240 H115 L116 186 Z" fill={trouserColor} />
+        {/* Churidar gather creases */}
+        <path d="M85 224 Q89 222 94 224" stroke="#d5ccba" strokeWidth="1.2" fill="none" />
+        <path d="M85 232 Q89 230 94 232" stroke="#d5ccba" strokeWidth="1.2" fill="none" />
+        <path d="M106 224 Q110 222 115 224" stroke="#d5ccba" strokeWidth="1.2" fill="none" />
+        <path d="M106 232 Q110 230 115 232" stroke="#d5ccba" strokeWidth="1.2" fill="none" />
+
+        {/* Mojari / Footwear */}
+        <path d="M79 240 Q86 238 95 242 H80 Q77 241 79 240 Z" fill="#2d1d13" />
+        <path d="M105 242 Q114 238 121 240 Q123 241 120 242 Z" fill="#2d1d13" />
+        <circle cx="87" cy="240" r="0.8" fill={accent} />
+        <circle cx="113" cy="240" r="0.8" fill={accent} />
+      </g>
+
+      {/* Kurta Body (Broad masculine silhouette) */}
+      <path
+        d="M72 72 Q100 66 128 72 L127 136 L128 188 Q100 193 72 188 L73 136 Z"
+        fill={cloth}
+      />
+      <path
+        d="M72 72 Q100 66 128 72 L127 136 L128 188 Q100 193 72 188 L73 136 Z"
+        fill={fold}
+      />
+
+      {/* Side slits */}
+      <path d="M73 144 V188" stroke="#000" strokeOpacity=".2" strokeWidth="1" />
+      <path d="M127 144 V188" stroke="#000" strokeOpacity=".2" strokeWidth="1" />
+
+      {/* Hem border */}
+      <path d="M72 184 Q100 189 128 184 L128 188 Q100 193 72 188 Z" fill={accent} opacity=".9" />
+
+      {/* Mandarin / Nehru stand-up collar */}
+      <path d="M93 68 Q100 70 107 68 L107 64 Q100 66 93 64 Z" fill={accent} />
+      <path d="M94 65 Q100 67 106 65" stroke="#fff" strokeWidth=".8" fill="none" opacity=".6" />
+
+      {/* Center button placket */}
+      <rect x="98.5" y="68" width="3" height="46" rx="1.5" fill={accent} opacity=".95" />
+      {[75, 85, 95, 105].map((y) => (
+        <circle key={y} cx="100" cy={y} r="0.9" fill="#fff" />
+      ))}
+
+      {/* Pocket Welt */}
+      <path d="M110 84 H119" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M112 83 L114 80 L116 83" fill={accent} opacity=".8" />
     </g>
   );
 }

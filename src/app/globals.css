@@ -342,6 +342,82 @@ p { margin: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* --------------------------------------------------------------------------
+   Category selection cards (onboarding)
+   -------------------------------------------------------------------------- */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (min-width: 520px) {
+  .category-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.cat-card {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 20px 10px 18px;
+  border-radius: 18px;
+  border: 1.5px solid var(--line-2);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all .2s cubic-bezier(.2,.8,.2,1);
+  overflow: hidden;
+}
+.cat-card::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: var(--cat-bg);
+  opacity: 0;
+  transition: opacity .25s;
+}
+.cat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30,20,90,.08); }
+.cat-card:hover::before { opacity: .35; }
+.cat-card:active { transform: scale(.97); }
+
+.cat-card.active {
+  border-color: var(--cat-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cat-color) 18%, transparent),
+              0 6px 20px rgba(30,20,90,.08);
+}
+.cat-card.active::before { opacity: .45; }
+
+.cat-icon {
+  position: relative; z-index: 1;
+  width: 46px; height: 46px; border-radius: 14px;
+  display: grid; place-items: center;
+  background: var(--cat-bg);
+  color: var(--cat-color);
+  transition: transform .2s, box-shadow .2s;
+}
+.cat-card.active .cat-icon {
+  background: var(--cat-color);
+  color: #fff;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--cat-color) 35%, transparent);
+  transform: scale(1.05);
+}
+
+.cat-label {
+  position: relative; z-index: 1;
+  font-size: 13px; font-weight: 650;
+  color: var(--ink-2);
+  text-align: center;
+  line-height: 1.25;
+  transition: color .2s;
+}
+.cat-card.active .cat-label { color: var(--ink); }
+
+.cat-check {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--cat-color);
+  animation: cat-pop .25s cubic-bezier(.2,1.4,.4,1);
+}
+@keyframes cat-pop { from { transform: scale(0); } to { transform: scale(1); } }
+
+/* --------------------------------------------------------------------------
    Art frames
    -------------------------------------------------------------------------- */
 .art { display: block; width: 100%; height: 100%; }
