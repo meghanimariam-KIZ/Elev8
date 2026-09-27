@@ -2,12 +2,65 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, Plus, Check, Brain, CheckCircle2 } from "lucide-react";
+import { Upload, Plus, Check, X, Brain, CheckCircle2 } from "lucide-react";
 import { useStore } from "@/lib/store";
 
 const TONES = ["Elegant", "Festive", "Traditional", "Modern", "Playful", "Luxurious", "Minimal"];
 const AUDIENCES = ["Women 25–40", "Wedding shoppers", "College students", "Working professionals", "NRI customers"];
 const SWATCHES = ["#e2667e", "#f3c46a", "#2b1a2f", "#3a5bff", "#16b6a3", "#7a4dff", "#b3244a", "#f5efe6"];
+
+function CustomChip({ onAdd }) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+
+  const confirm = () => {
+    const v = value.trim();
+    if (v) onAdd(v);
+    setValue("");
+    setOpen(false);
+  };
+  const cancel = () => {
+    setValue("");
+    setOpen(false);
+  };
+
+  if (!open) {
+    return (
+      <button type="button" className="chip" onClick={() => setOpen(true)}>
+        <Plus size={13} /> Custom
+      </button>
+    );
+  }
+
+  return (
+    <div
+      className="row gap-6"
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) cancel();
+      }}
+    >
+      <div className="input" style={{ height: 32, padding: "0 10px", borderRadius: 999 }}>
+        <input
+          autoFocus
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") { e.preventDefault(); confirm(); }
+            if (e.key === "Escape") cancel();
+          }}
+          placeholder="Type your own"
+          style={{ width: 110, fontSize: 12.5 }}
+        />
+      </div>
+      <button type="button" onClick={confirm} aria-label="Add custom value" className="chip" style={{ width: 32, padding: 0, justifyContent: "center" }}>
+        <Check size={14} strokeWidth={3} />
+      </button>
+      <button type="button" onClick={cancel} aria-label="Cancel" className="chip" style={{ width: 32, padding: 0, justifyContent: "center" }}>
+        <X size={14} />
+      </button>
+    </div>
+  );
+}
 
 export default function BrandBrainForm({ cta = "Save & Continue", next = "/home" }) {
   const router = useRouter();
@@ -16,9 +69,17 @@ export default function BrandBrainForm({ cta = "Save & Continue", next = "/home"
   const [logo, setLogo] = useState(null);
   const [saved, setSaved] = useState(false);
   const fileRef = useRef(null);
+  const colorRef = useRef(null);
 
   const toggle = (key, v) =>
     setForm((f) => ({ ...f, [key]: f[key].includes(v) ? f[key].filter((x) => x !== v) : [...f[key], v] }));
+
+  const addCustom = (key, v) =>
+    setForm((f) => (f[key].includes(v) ? f : { ...f, [key]: [...f[key], v] }));
+
+  const customColors = form.colors.filter((c) => !SWATCHES.includes(c));
+  const customTones = form.tone.filter((t) => !TONES.includes(t));
+  const customAudiences = form.audience.filter((t) => !AUDIENCES.includes(t));
 
   return (
     <>
@@ -76,9 +137,26 @@ export default function BrandBrainForm({ cta = "Save & Continue", next = "/home"
                 </button>
               );
             })}
-            <span style={{ width: 36, height: 36, borderRadius: 12, border: "1.5px dashed var(--line-2)", display: "grid", placeItems: "center", color: "var(--ink-3)" }}>
+            {customColors.map((c) => (
+              <button
+                key={c} type="button" onClick={() => toggle("colors", c)} aria-pressed="true" aria-label={`Custom colour ${c}`}
+                style={{
+                  width: 36, height: 36, borderRadius: 12, background: c, display: "grid", placeItems: "center",
+                  boxShadow: "0 0 0 2px var(--bg), 0 0 0 4px var(--violet)",
+                }}
+              >
+                <span style={{ display: "grid", placeItems: "center", color: "#fff", mixBlendMode: "difference" }}>
+                  <Check size={16} strokeWidth={3} />
+                </span>
+              </button>
+            ))}
+            <button
+              type="button" onClick={() => colorRef.current?.click()} aria-label="Add a custom colour"
+              style={{ width: 36, height: 36, borderRadius: 12, border: "1.5px dashed var(--line-2)", display: "grid", placeItems: "center", color: "var(--ink-3)", background: "transparent" }}
+            >
               <Plus size={16} />
-            </span>
+            </button>
+            <input ref={colorRef} type="color" hidden onChange={(e) => addCustom("colors", e.target.value)} />
           </div>
         </div>
 
@@ -88,6 +166,10 @@ export default function BrandBrainForm({ cta = "Save & Continue", next = "/home"
             {TONES.map((t) => (
               <button key={t} type="button" className={`chip grad ${form.tone.includes(t) ? "on" : ""}`} onClick={() => toggle("tone", t)}>{t}</button>
             ))}
+            {customTones.map((t) => (
+              <button key={t} type="button" className="chip grad on" onClick={() => toggle("tone", t)}>{t}</button>
+            ))}
+            <CustomChip onAdd={(v) => addCustom("tone", v)} />
           </div>
         </div>
 
@@ -97,6 +179,10 @@ export default function BrandBrainForm({ cta = "Save & Continue", next = "/home"
             {AUDIENCES.map((t) => (
               <button key={t} type="button" className={`chip ${form.audience.includes(t) ? "on" : ""}`} onClick={() => toggle("audience", t)}>{t}</button>
             ))}
+            {customAudiences.map((t) => (
+              <button key={t} type="button" className="chip on" onClick={() => toggle("audience", t)}>{t}</button>
+            ))}
+            <CustomChip onAdd={(v) => addCustom("audience", v)} />
           </div>
         </div>
 
