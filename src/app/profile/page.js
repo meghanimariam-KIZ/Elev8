@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { Screen, TopBar } from "@/components/Screen";
 import { useStore } from "@/lib/store";
+import Logo from "@/components/Logo";
 
 const ITEMS = [
   { icon: Building2, label: "Business Profile", href: "/onboarding/business" },
@@ -40,7 +41,10 @@ export default function Profile() {
 
         <div className="card mt-12" style={{ padding: 14, background: "linear-gradient(120deg,#1e1760,#4a2aa8 60%,#b43c8d)", color: "#fff", border: 0 }}>
           <div className="row between">
-            <p className="small" style={{ fontWeight: 700 }}>ELEV8 Pro</p>
+            <p className="small row gap-8" style={{ fontWeight: 700 }}>
+              <span style={{ width: 30, height: 30, borderRadius: 9, background: "rgba(255,255,255,.95)", display: "grid", placeItems: "center" }}><Logo size={20} markOnly /></span>
+              ELEV8 Pro
+            </p>
             <span className="tiny" style={{ opacity: .8 }}>Renews 12 Oct</span>
           </div>
           <div className="progress mt-8" style={{ background: "rgba(255,255,255,.2)" }}><i style={{ width: `${(credits / 500) * 100}%`, background: "#fff" }} /></div>
