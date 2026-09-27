@@ -1,43 +1,35 @@
-import { useId } from "react";
+import Image from "next/image";
 
-/** ELEV8 wordmark: gradient "E" swoosh + "LEV" + gradient "8". */
+/** ELEV8 logo – renders the brand logo image at the requested size. */
 export default function Logo({ size = 28, light = false, stacked = false }) {
-  const id = useId().replace(/:/g, "");
-  const ink = light ? "#ffffff" : "#14132b";
+  /* The logo image is portrait-oriented (709x1138).
+     We size by height and maintain the natural 0.623 aspect ratio. */
+  const h = size;
+  const w = Math.max(1, Math.round(h * (709 / 1138)));
+
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: size * 0.12, lineHeight: 1 }} aria-label="ELEV8">
-      <svg width={size * 0.95} height={size} viewBox="0 0 38 40" aria-hidden="true">
-        <defs>
-          <linearGradient id={`e-${id}`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="38" y2="40">
-            <stop offset="0" stopColor="#3ad0ff" />
-            <stop offset=".5" stopColor="#7a4dff" />
-            <stop offset="1" stopColor="#ff4fa3" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M33 8.5C30 4.6 25.4 2.5 20.4 2.5 10.9 2.5 3.5 10.3 3.5 20s7.4 17.5 16.9 17.5c5.2 0 9.9-2.3 12.9-6.3"
-          fill="none" stroke={`url(#e-${id})`} strokeWidth="5.5" strokeLinecap="round"
-        />
-        <path d="M11 20h19" stroke={`url(#e-${id})`} strokeWidth="5.5" strokeLinecap="round" />
-      </svg>
-      {!stacked && (
-        <span
-          style={{
-            fontFamily: "var(--font-display)", fontWeight: 800, fontSize: size * 0.92,
-            letterSpacing: "0.02em", color: ink,
-          }}
-        >
-          LEV
-          <span
-            style={{
-              background: "linear-gradient(135deg,#3ad0ff,#7a4dff 50%,#ff4fa3)",
-              WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
-            }}
-          >
-            8
-          </span>
-        </span>
-      )}
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        lineHeight: 1,
+        ...(light ? { filter: "brightness(1.15) drop-shadow(0 2px 14px rgba(80,60,255,.4))" } : {}),
+      }}
+      aria-label="ELEV8"
+    >
+      <Image
+        src="/elev8-logo.png"
+        alt="ELEV8"
+        width={709}
+        height={1138}
+        priority
+        style={{
+          width: "auto",
+          height: h,
+          maxWidth: "100%",
+          objectFit: "contain",
+        }}
+      />
     </span>
   );
 }

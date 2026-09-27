@@ -42,7 +42,7 @@ export default function ChooseModel() {
                 <span
                   className="frame" style={{ width: "100%", aspectRatio: "3/4", maxHeight: 220, borderRadius: 14, display: "block", boxShadow: on ? "0 0 0 2px var(--bg), 0 0 0 4px var(--violet)" : "none" }}
                 >
-                  <GarmentArt scene="studio" variant={gender === "Male" ? "kurta" : "anarkali"} color={gender === "Male" ? "#f1e3cf" : "#e2667e"} accent={gender === "Male" ? "#c9a25a" : "#f3c46a"} skin={m.skin} hair={m.hair} />
+                  <GarmentArt scene="studio" variant={gender === "Male" ? "kurta" : "anarkali"} color={gender === "Male" ? "#f1e3cf" : "#e2667e"} accent={gender === "Male" ? "#c9a25a" : "#f3c46a"} skin={m.skin} hair={m.hair} gender={gender} beard={m.beard} />
                   {on && <span style={{ position: "absolute", top: 6, right: 6, width: 20, height: 20, borderRadius: 99, background: "var(--violet)", color: "#fff", display: "grid", placeItems: "center" }}><Check size={12} strokeWidth={3} /></span>}
                 </span>
                 <span className="tiny" style={{ fontWeight: 600 }}>{m.name}</span>
@@ -54,10 +54,15 @@ export default function ChooseModel() {
         <Group label="Body Type" options={["Petite", "Regular", "Tall", "Plus"]} value={body} onChange={setBody} />
         <Group label="Presentation" options={["Studio", "Lifestyle", "Outdoor"]} value={pres} onChange={setPres} />
 
-        <div className="frame mt-16" style={{ height: 240, borderRadius: 18, background: "var(--surface-2)" }}>
-          <GarmentArt scene={PRESENTATION_SCENE[pres]} variant={gender === "Male" ? "kurta" : "anarkali"} color={gender === "Male" ? "#f1e3cf" : "#e2667e"} accent={gender === "Male" ? "#c9a25a" : "#f3c46a"} skin={MODELS[gender].find((m) => m.id === model)?.skin} hair={MODELS[gender].find((m) => m.id === model)?.hair} fit="meet" align="xMidYMax" />
-          <span className="corner">{pres} preview</span>
-        </div>
+        {(() => {
+          const selectedM = MODELS[gender].find((m) => m.id === model) || MODELS[gender][0];
+          return (
+            <div className="frame mt-16" style={{ height: 240, borderRadius: 18, background: "var(--surface-2)" }}>
+              <GarmentArt scene={PRESENTATION_SCENE[pres]} variant={gender === "Male" ? "kurta" : "anarkali"} color={gender === "Male" ? "#f1e3cf" : "#e2667e"} accent={gender === "Male" ? "#c9a25a" : "#f3c46a"} skin={selectedM?.skin} hair={selectedM?.hair} gender={gender} beard={selectedM?.beard} fit="meet" align="xMidYMax" />
+              <span className="corner">{pres} preview</span>
+            </div>
+          );
+        })()}
       </div>
       <div className="footer">
         <button className="btn primary block" onClick={go}>Continue</button>

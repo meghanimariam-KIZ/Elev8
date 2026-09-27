@@ -26,10 +26,10 @@ export default function BusinessSetup() {
     <AuthLayout variant="lehenga" scene="room" headline={<>Built for your store,<br />not a template.</>} copy="Tell ELEV8 where you sell and what you sell — every post and experience adapts to it.">
     <Screen tone="soft" width="narrow">
       <TopBar back="/signup">
-        <div className="stepper" style={{ width: 120, marginRight: 8 }}><i className="on" /><i className="on" /><i /></div>
+        <div className="stepper" style={{ width: 160, marginRight: 8 }}><i className="on" /><i className="on" /><i /><i /></div>
       </TopBar>
       <div className="body">
-        <p className="eyebrow">Step 2 of 3</p>
+        <p className="eyebrow">Step 2 of 4</p>
         <h1 className="h-lg mt-4">Tell us about your business</h1>
         <p className="sub mt-4">ELEV8 tailors every post and experience to your store.</p>
 
@@ -91,7 +91,7 @@ export default function BusinessSetup() {
         <button
           className="btn primary block"
           disabled={!form.name.trim()}
-          onClick={() => { update("business", form); router.push("/onboarding/brand"); }}
+          onClick={() => { update("business", form); router.push("/onboarding/category"); }}
         >
           Continue
         </button>
