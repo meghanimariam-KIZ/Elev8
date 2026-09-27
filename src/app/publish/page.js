@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, CheckCircle2, MessageCircle, Globe, ThumbsUp, Send } from "lucide-react";
+import { Sparkles, CheckCircle2, AlertTriangle, MessageCircle, Globe, ThumbsUp, Send } from "lucide-react";
 import { Screen, TopBar } from "@/components/Screen";
 import GarmentArt from "@/components/GarmentArt";
 import InstagramGlyph from "@/components/InstagramGlyph";
@@ -26,13 +26,45 @@ export default function Publish() {
   const [day, setDay] = useState(() => new Date().getDate());
   const [time, setTime] = useState("7:30 PM");
   const [done, setDone] = useState(null);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState(null);
 
   const date = new Date(month.getFullYear(), month.getMonth(), day);
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const inPast = date < today;
 
-  const finish = (kind) => {
+  const finish = async (kind) => {
     if (!current) return;
+    setPublishError(null);
+
+    // The publish-content webhook posts straight to Meta — no schedule-time
+    // param in its contract — so only an immediate "Publish now" calls it.
+    // "Schedule" stays local-only bookkeeping until the workflow supports it.
+    if (kind === "now") {
+      setPublishing(true);
+      const g = current.generated || {};
+      try {
+        const res = await fetch("/api/publish-content", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            imageUrl: g.imageUrl || "",
+            videoUrl: g.videoUrl || "",
+            caption: current.caption || g.caption || "",
+            hashtags: g.hashtags || [],
+            platforms: { instagram: platforms.includes("instagram"), facebook: platforms.includes("facebook") },
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.error || "Publishing failed.");
+      } catch (err) {
+        setPublishing(false);
+        setPublishError(err.message || "Publishing failed.");
+        return;
+      }
+      setPublishing(false);
+    }
+
     addPost({
       productId: current.id,
       date: kind === "now" ? toISO(new Date()) : toISO(date),
@@ -97,11 +129,19 @@ export default function Publish() {
         </div>
       </div>
       <div className="footer row gap-8">
-        <button className="btn secondary" onClick={() => finish("now")} disabled={!platforms.length || !current}><Send size={16} /> <span className="mobile-only">Now</span><span className="desktop-only">Publish now</span></button>
-        <button className="btn primary grow" onClick={() => finish("scheduled")} disabled={!platforms.length || inPast || !current}>
+        <button className="btn secondary" onClick={() => finish("now")} disabled={!platforms.length || !current || publishing}>
+          <Send size={16} /> <span className="mobile-only">{publishing ? "…" : "Now"}</span><span className="desktop-only">{publishing ? "Publishing…" : "Publish now"}</span>
+        </button>
+        <button className="btn primary grow" onClick={() => finish("scheduled")} disabled={!platforms.length || inPast || !current || publishing}>
           Schedule<span className="desktop-only"> · {date.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}, {time}</span>
         </button>
       </div>
+      {publishError && (
+        <div className="toast">
+          <AlertTriangle size={18} color="var(--red)" />
+          {publishError}
+        </div>
+      )}
       {done && (
         <div className="toast">
           <CheckCircle2 size={18} color="#4ade80" />

@@ -30,6 +30,11 @@ export default function Details() {
       name: draft.name || "Untitled product", price: Number(draft.price) || 0, category: draft.category,
       variant: VARIANT_BY_CATEGORY[draft.category] || "anarkali", ...palette, status: "draft", channel: "social",
       attributes: Object.fromEntries(attrs.map((a) => [a.key, a.value])), tags,
+      // TODO(image hosting): this is a local blob: URL from URL.createObjectURL,
+      // only valid in this browser tab — not a public URL an n8n workflow can
+      // fetch. There's no image hosting (Vercel Blob/Cloudinary/S3/etc.) wired
+      // up yet; add one and upload here before generation can use a real photo.
+      photo: draft.photo || null,
     });
     update("draft", { name: "", price: "", photo: null });
     router.push("/create");
