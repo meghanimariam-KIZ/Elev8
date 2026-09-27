@@ -40,8 +40,15 @@ export default function AddProduct() {
       setUploading(false);
     }
   };
+  const removePhoto = () => {
+    update("draft", { photo: null, imageUrl: null });
+    setUploadError(null);
+  };
   const set = (k) => (e) => update("draft", { [k]: e.target.value });
-  const valid = draft.name.trim() && Number(draft.price) > 0 && !uploading;
+  // Blocks continuing while the photo is still uploading, and blocks it on a failed
+  // upload too — otherwise the next step falls back to a browser-only blob: URL that
+  // n8n can't fetch, or an empty productImageUrl (see src/app/create/processing/page.js).
+  const valid = draft.name.trim() && Number(draft.price) > 0 && !uploading && !uploadError;
 
   const next = (e) => {
     e.preventDefault();
@@ -74,7 +81,7 @@ export default function AddProduct() {
                 </div>
               )}
               {draft.photo && (
-                <button type="button" onClick={() => update("draft", { photo: null, imageUrl: null })} className="icon-btn" style={{ position: "absolute", top: 10, right: 10 }} aria-label="Remove photo"><X size={16} /></button>
+                <button type="button" onClick={removePhoto} className="icon-btn" style={{ position: "absolute", top: 10, right: 10 }} aria-label="Remove photo"><X size={16} /></button>
               )}
               {draft.photo && (
                 <span className="corner row gap-4" style={{ right: "auto", left: 10 }}>
@@ -82,7 +89,7 @@ export default function AddProduct() {
                 </span>
               )}
             </div>
-            {uploadError && <p className="tiny mt-8" style={{ color: "var(--red)" }}>{uploadError}</p>}
+            {uploadError && <p className="tiny mt-8" style={{ color: "var(--red)" }}>{uploadError} Remove the photo and try again, or continue without one.</p>}
             <div className="card row mt-12" style={{ padding: 6 }}>
               {[
                 { ref: camRef, icon: Camera, label: "Camera", capture: "environment" },
@@ -126,12 +133,12 @@ export default function AddProduct() {
               <Sparkles size={18} color="var(--violet)" style={{ flex: "none" }} />
               <p className="tiny" style={{ color: "var(--ink-2)", lineHeight: 1.5 }}>ELEV8 will detect colour, fabric, style and audience from the photo — you can edit everything on the next step.</p>
             </div>
-            <button type="submit" className="btn primary block mt-20 desktop-only">Next</button>
+            <button type="submit" className="btn primary block mt-20 desktop-only" disabled={!valid}>Next</button>
           </div>
         </div>
       </form>
       <div className="footer mobile-only">
-        <button type="submit" form="add-product" className="btn primary block">Next</button>
+        <button type="submit" form="add-product" className="btn primary block" disabled={!valid}>Next</button>
       </div>
     </Screen>
   );

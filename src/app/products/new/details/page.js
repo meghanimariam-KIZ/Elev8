@@ -30,8 +30,12 @@ export default function Details() {
     const name = draft.name || "Untitled product";
     const price = Number(draft.price) || 0;
     // draft.imageUrl is the public Supabase Storage URL from the upload in
-    // /products/new; draft.photo is only a local blob: preview fallback.
-    const imageUrl = draft.imageUrl || draft.photo || null;
+    // /products/new. draft.photo is only a local blob: URL for the in-page
+    // preview — it's never valid outside this browser tab, so it must never
+    // be used as the product's stored/generation-facing image URL (the
+    // upload gate on /products/new guarantees draft.imageUrl is set here
+    // whenever a photo was actually attached).
+    const imageUrl = draft.imageUrl || null;
 
     addProduct({
       name, price, category: draft.category,
