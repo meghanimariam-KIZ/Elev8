@@ -6,6 +6,7 @@ import { Palette, Scissors, Shirt, Triangle, Users, Tags, Pencil, Check, Sparkle
 import { Screen, TopBar } from "@/components/Screen";
 import GarmentArt from "@/components/GarmentArt";
 import { useStore, PALETTES } from "@/lib/store";
+import { createClient } from "@/utils/supabase/client";
 
 const INITIAL = [
   { key: "material", icon: Scissors, label: "Material", value: "Embroidered Georgette" },
@@ -19,24 +20,39 @@ const VARIANT_BY_CATEGORY = { Sarees: "saree", Bridal: "lehenga", Kurtas: "kurta
 
 export default function Details() {
   const router = useRouter();
-  const { draft, addProduct, update, products } = useStore();
+  const { draft, addProduct, update, products, business, brand } = useStore();
   const [attrs, setAttrs] = useState(INITIAL);
   const [editing, setEditing] = useState(null);
   const [tags, setTags] = useState(TAGS.slice(0, 3));
 
-  const save = () => {
+  const save = async () => {
     const palette = PALETTES[products.length % PALETTES.length];
+    const name = draft.name || "Untitled product";
+    const price = Number(draft.price) || 0;
+    // draft.imageUrl is the public Supabase Storage URL from the upload in
+    // /products/new; draft.photo is only a local blob: preview fallback.
+    const imageUrl = draft.imageUrl || draft.photo || null;
+
     addProduct({
-      name: draft.name || "Untitled product", price: Number(draft.price) || 0, category: draft.category,
+      name, price, category: draft.category,
       variant: VARIANT_BY_CATEGORY[draft.category] || "anarkali", ...palette, status: "draft", channel: "social",
       attributes: Object.fromEntries(attrs.map((a) => [a.key, a.value])), tags,
-      // TODO(image hosting): this is a local blob: URL from URL.createObjectURL,
-      // only valid in this browser tab — not a public URL an n8n workflow can
-      // fetch. There's no image hosting (Vercel Blob/Cloudinary/S3/etc.) wired
-      // up yet; add one and upload here before generation can use a real photo.
-      photo: draft.photo || null,
+      photo: imageUrl,
     });
-    update("draft", { name: "", price: "", photo: null });
+
+    const supabase = createClient();
+    const { error } = await supabase.from("products").insert({
+      product_name: name,
+      category: draft.category,
+      price,
+      brand_name: business.name,
+      brand_style: brand.tone.join(", "),
+      target_audience: brand.audience.join(", "),
+      image_url: imageUrl,
+    });
+    if (error) console.error("Failed to save product row in Supabase:", error.message);
+
+    update("draft", { name: "", price: "", photo: null, imageUrl: null });
     router.push("/create");
   };
 
