@@ -54,7 +54,7 @@ function Interpretation() {
         <div className="card pad mt-12 small" style={{ background: "transparent", borderStyle: "dashed", color: "var(--ink-2)" }}>“{request}”</div>
       </div>
       <div className="footer stack gap-8">
-        <Link href="/create/regenerating" className="btn primary block">Regenerate</Link>
+        <Link href={`/create/regenerating?q=${encodeURIComponent(request)}`} className="btn primary block">Regenerate</Link>
         <Link href="/create/feedback" className="btn secondary block sm">Change request</Link>
       </div>
     </Screen>
