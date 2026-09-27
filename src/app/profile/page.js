@@ -11,7 +11,7 @@ import Logo from "@/components/Logo";
 const ITEMS = [
   { icon: Building2, label: "Business Profile", href: "/onboarding/business" },
   { icon: Brain, label: "Brand Brain", href: "/brand" },
-  { icon: Link2, label: "Connected Accounts", meta: "Instagram" },
+  { icon: Link2, label: "Connected Accounts", href: "/profile/connected-accounts" },
   { icon: Bell, label: "Notifications" },
   { icon: ShieldCheck, label: "Approval Preferences", meta: "Always ask" },
   { icon: Mic, label: "Voice Preferences", meta: "Hindi + English" },

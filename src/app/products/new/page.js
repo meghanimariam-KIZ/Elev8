@@ -6,6 +6,8 @@ import { Camera, Image as ImageIcon, ChevronDown, Sparkles, X } from "lucide-rea
 import { Screen, TopBar } from "@/components/Screen";
 import GarmentArt from "@/components/GarmentArt";
 import { useStore } from "@/lib/store";
+import { createClient } from "@/utils/supabase/client";
+import { PRODUCT_PHOTOS_BUCKET } from "@/lib/config";
 
 const CATEGORIES = ["Ethnic Wear", "Sarees", "Bridal", "Kurtas", "Western Wear", "Jewellery"];
 
@@ -16,10 +18,30 @@ export default function AddProduct() {
   const galRef = useRef(null);
   const [drag, setDrag] = useState(false);
   const [touched, setTouched] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
 
-  const setFile = (f) => f && f.type.startsWith("image/") && update("draft", { photo: URL.createObjectURL(f) });
+  const setFile = async (f) => {
+    if (!f || !f.type.startsWith("image/")) return;
+    update("draft", { photo: URL.createObjectURL(f), imageUrl: null });
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const supabase = createClient();
+      const ext = f.name.includes(".") ? f.name.slice(f.name.lastIndexOf(".")) : "";
+      const path = `${crypto.randomUUID()}${ext}`;
+      const { error } = await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).upload(path, f);
+      if (error) throw error;
+      const { data } = supabase.storage.from(PRODUCT_PHOTOS_BUCKET).getPublicUrl(path);
+      update("draft", { imageUrl: data.publicUrl });
+    } catch (err) {
+      setUploadError(err.message || "Couldn't upload the photo.");
+    } finally {
+      setUploading(false);
+    }
+  };
   const set = (k) => (e) => update("draft", { [k]: e.target.value });
-  const valid = draft.name.trim() && Number(draft.price) > 0;
+  const valid = draft.name.trim() && Number(draft.price) > 0 && !uploading;
 
   const next = (e) => {
     e.preventDefault();
@@ -52,10 +74,15 @@ export default function AddProduct() {
                 </div>
               )}
               {draft.photo && (
-                <button type="button" onClick={() => update("draft", { photo: null })} className="icon-btn" style={{ position: "absolute", top: 10, right: 10 }} aria-label="Remove photo"><X size={16} /></button>
+                <button type="button" onClick={() => update("draft", { photo: null, imageUrl: null })} className="icon-btn" style={{ position: "absolute", top: 10, right: 10 }} aria-label="Remove photo"><X size={16} /></button>
               )}
-              {draft.photo && <span className="corner row gap-4" style={{ right: "auto", left: 10 }}><Sparkles size={12} /> Ready to analyse</span>}
+              {draft.photo && (
+                <span className="corner row gap-4" style={{ right: "auto", left: 10 }}>
+                  <Sparkles size={12} /> {uploading ? "Uploading…" : "Ready to analyse"}
+                </span>
+              )}
             </div>
+            {uploadError && <p className="tiny mt-8" style={{ color: "var(--red)" }}>{uploadError}</p>}
             <div className="card row mt-12" style={{ padding: 6 }}>
               {[
                 { ref: camRef, icon: Camera, label: "Camera", capture: "environment" },

@@ -47,7 +47,7 @@ const INITIAL = {
   products: INITIAL_PRODUCTS,
   posts: null, // seeded on the client (date-relative)
   currentId: "p1",
-  draft: { name: "", category: "Ethnic Wear", price: "", photo: null },
+  draft: { name: "", category: "Ethnic Wear", price: "", photo: null, imageUrl: null },
   experiences: { social: true, virtual: true },
   credits: 320,
 };
@@ -67,7 +67,7 @@ export function StoreProvider({ children }) {
       ...s,
       ...(saved || {}),
       posts: saved?.posts || seedPosts(),
-      draft: { ...s.draft, ...(saved?.draft || {}), photo: null },
+      draft: { ...s.draft, ...(saved?.draft || {}), photo: null, imageUrl: null },
     }));
     setReady(true);
   }, []);
@@ -75,7 +75,7 @@ export function StoreProvider({ children }) {
   useEffect(() => {
     if (!ready) return;
     try {
-      localStorage.setItem(KEY, JSON.stringify({ ...state, draft: { ...state.draft, photo: null } }));
+      localStorage.setItem(KEY, JSON.stringify({ ...state, draft: { ...state.draft, photo: null, imageUrl: null } }));
     } catch {}
   }, [state, ready]);
 

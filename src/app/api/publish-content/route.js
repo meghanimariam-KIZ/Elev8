@@ -1,4 +1,5 @@
-import { N8N_PUBLISH_CONTENT_URL, META_ACCOUNT_IDS } from "@/lib/config";
+import { N8N_PUBLISH_CONTENT_URL } from "@/lib/config";
+import { createClient } from "@/utils/supabase/server";
 
 export const maxDuration = 60;
 
@@ -10,20 +11,28 @@ export async function POST(request) {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  // TODO(config): see src/lib/config.js — no settings screen yet stores the
-  // merchant's connected Meta account IDs, so publishing is blocked until
-  // they're configured via env vars.
-  if (!META_ACCOUNT_IDS.instagramBusinessAccountId || !META_ACCOUNT_IDS.facebookPageId) {
+  const supabase = await createClient();
+  const { data: settings, error: settingsError } = await supabase
+    .from("brand_settings")
+    .select("instagram_business_account_id, facebook_page_id")
+    .limit(1)
+    .maybeSingle();
+
+  if (settingsError) {
+    return Response.json({ error: `Could not read brand settings: ${settingsError.message}` }, { status: 500 });
+  }
+
+  if (!settings?.instagram_business_account_id || !settings?.facebook_page_id) {
     return Response.json(
-      { error: "Meta account isn't connected yet. Set INSTAGRAM_BUSINESS_ACCOUNT_ID and FACEBOOK_PAGE_ID (see src/lib/config.js)." },
+      { error: "Meta account isn't connected yet. Add your Instagram Business Account ID and Facebook Page ID in Profile → Connected Accounts." },
       { status: 412 }
     );
   }
 
   const payload = {
     ...body,
-    instagramBusinessAccountId: META_ACCOUNT_IDS.instagramBusinessAccountId,
-    facebookPageId: META_ACCOUNT_IDS.facebookPageId,
+    instagramBusinessAccountId: settings.instagram_business_account_id,
+    facebookPageId: settings.facebook_page_id,
   };
 
   let res;
