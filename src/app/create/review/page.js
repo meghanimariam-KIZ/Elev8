@@ -148,7 +148,11 @@ export default function Review() {
                 <div className="stack gap-8 mt-8">
                   {queue.map((p) => (
                     <button key={p.id} className="row gap-10" style={{ textAlign: "left" }} onClick={() => setCurrent(p.id)}>
-                      <span className="frame" style={{ width: 36, height: 44, borderRadius: 8, flex: "none" }}><GarmentArt variant={p.variant} color={p.color} accent={p.accent} scene="studio" /></span>
+                      <span className="frame" style={{ width: 36, height: 44, borderRadius: 8, flex: "none" }}>
+                        {p.photo
+                          ? <img src={p.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          : <GarmentArt variant={p.variant} color={p.color} accent={p.accent} scene="studio" />}
+                      </span>
                       <span className="small grow" style={{ fontWeight: 600 }}>{p.name}</span>
                       <ChevronRight size={16} color="var(--ink-3)" />
                     </button>
