@@ -15,7 +15,7 @@ function Regenerating() {
   const router = useRouter();
   const params = useSearchParams();
   const editInstructions = params.get("q") || "";
-  const { current, business, brand, updateProduct } = useStore();
+  const { current, business, brand, contentTypes, updateProduct } = useStore();
   const [step, setStep] = useState(0);
   const [error, setError] = useState(null);
   const started = useRef(false);
@@ -51,6 +51,7 @@ function Regenerating() {
             targetAudience: brand.audience.join(", "),
             productImageUrl: current.photo,
             platforms: DEFAULT_PLATFORMS,
+            contentTypes,
             editInstructions,
           }),
         });
@@ -75,7 +76,7 @@ function Regenerating() {
         setError(err.message || "Something went wrong while regenerating your content.");
       }
     })();
-  }, [current, business, brand, editInstructions, router, updateProduct]);
+  }, [current, business, brand, contentTypes, editInstructions, router, updateProduct]);
 
   if (!current) {
     return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Check, Images, Rotate3d } from "lucide-react";
+import { Check, Images, Rotate3d, Image as ImageIcon, Video } from "lucide-react";
 import { Screen, TopBar } from "@/components/Screen";
 import { useStore } from "@/lib/store";
 import GarmentArt from "@/components/GarmentArt";
@@ -21,8 +21,17 @@ const OPTIONS = [
 
 export default function ChooseExperience() {
   const router = useRouter();
-  const { experiences, update, current } = useStore();
+  const { experiences, contentTypes, update, current } = useStore();
   const any = experiences.social || experiences.virtual;
+
+  const toggleImage = () => {
+    if (contentTypes.image && !contentTypes.video) return; // keep at least one on
+    update("contentTypes", { image: !contentTypes.image });
+  };
+  const toggleVideo = () => {
+    if (contentTypes.video && !contentTypes.image) return; // keep at least one on
+    update("contentTypes", { video: !contentTypes.video });
+  };
 
   return (
     <Screen width="medium">
@@ -70,6 +79,21 @@ export default function ChooseExperience() {
             );
           })}
         </div>
+
+        {experiences.social && (
+          <div className="card mt-12" style={{ padding: 14 }}>
+            <p className="small" style={{ fontWeight: 700 }}>Social Media outputs</p>
+            <p className="tiny muted mt-4">Choose what ELEV8 should generate for you.</p>
+            <div className="chips mt-8">
+              <button type="button" className={`chip ${contentTypes.image ? "on" : ""}`} aria-pressed={contentTypes.image} onClick={toggleImage}>
+                <ImageIcon size={14} /> Photo
+              </button>
+              <button type="button" className={`chip ${contentTypes.video ? "on" : ""}`} aria-pressed={contentTypes.video} onClick={toggleVideo}>
+                <Video size={14} /> Video (Reel) <span className="badge amber">Coming soon</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       <div className="footer">
         <button className="btn primary block" style={{ maxWidth: 420, marginLeft: "auto", display: "flex" }} disabled={!any} onClick={() => router.push("/create/processing")}>Continue</button>
