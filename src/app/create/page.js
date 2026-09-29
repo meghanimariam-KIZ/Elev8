@@ -39,7 +39,11 @@ export default function ChooseExperience() {
       <div className="body">
         {current && (
           <div className="card row gap-12" style={{ padding: 10, maxWidth: 420 }}>
-            <div className="frame" style={{ width: 44, height: 54, borderRadius: 10, flex: "none" }}><GarmentArt variant={current.variant} color={current.color} accent={current.accent} scene="studio" /></div>
+            <div className="frame" style={{ width: 44, height: 54, borderRadius: 10, flex: "none" }}>
+              {current.photo
+                ? <img src={current.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                : <GarmentArt variant={current.variant} color={current.color} accent={current.accent} scene="studio" />}
+            </div>
             <div className="grow"><p className="tiny muted">Creating for</p><p className="small" style={{ fontWeight: 700 }}>{current.name}</p></div>
           </div>
         )}
