@@ -2,8 +2,9 @@ import Link from "next/link";
 import { Wand2, Sparkles, TrendingUp } from "lucide-react";
 import { Screen } from "@/components/Screen";
 import AuthLayout from "@/components/AuthLayout";
-import GarmentArt from "@/components/GarmentArt";
 import Logo from "@/components/Logo";
+
+const HERO_IMAGE = "/hero-welcome.png";
 
 const FEATURES = [
   { icon: Wand2, title: "Create amazing content", text: "Studio-quality photos, videos & captions" },
@@ -13,10 +14,10 @@ const FEATURES = [
 
 export default function Welcome() {
   return (
-    <AuthLayout>
+    <AuthLayout image={HERO_IMAGE}>
       <Screen width="narrow">
         <div className="mobile-only" style={{ position: "relative", height: 360, background: "#f7e6de", overflow: "hidden" }}>
-          <div style={{ position: "absolute", left: 0, right: 0, top: 30, bottom: 0 }}><GarmentArt scene="room" /></div>
+          <img src={HERO_IMAGE} alt="" style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, width: "100%", height: "100%", objectFit: "cover" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 55%, var(--bg) 100%)" }} />
           <div style={{ position: "absolute", top: 20, left: 20 }}><Logo size={24} /></div>
         </div>
