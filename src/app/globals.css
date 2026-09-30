@@ -241,6 +241,7 @@ p { margin: 0; }
 .chip.on { background: var(--ink); border-color: var(--ink); color: #fff; }
 .chip.grad.on { background: var(--grad); border-color: transparent; }
 .chip.soft { background: var(--surface-2); border-color: transparent; }
+.chip[disabled] { opacity: .55; cursor: not-allowed; pointer-events: none; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips.scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 0 20px; }
 .chips.scroll::-webkit-scrollbar { display: none; }
